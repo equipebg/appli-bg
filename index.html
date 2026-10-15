@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Équipe BG - Système Pro v4.0</title>
+    
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Équipe BG">
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+    
+    <style>
+        :root { 
+            --bg-red: #d9232e; 
+            --bg-dark: #1a1a1a;
+            --bg-light: #f8fafc; 
+            --text-main: #1e293b; 
+            --text-muted: #64748b;
+            --success: #10b981; 
+            --accent: #3b82f6;
+            --fub-color: #3f51b5;
+            --warning: #f59e0b;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --input-bg: #f8fafc;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-light: #0f172a;
+                --text-main: #f1f5f9;
+                --text-muted: #94a3b8;
+                --card-bg: #1e293b;
+                --border-color: #334155;
+                --input-bg: #0f172a;
+            }
+            body { background-color: #020617; }
+            .access-card { background: #1e293b !important; border-color: #334155 !important; }
+            .access-card-amber { background: #422006 !important; border-color: #713f12 !important; }
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            margin: 0; 
+            background-color: #f1f5f9; 
+            font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            color: var(--text-main); 
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container { 
+            max-width: 450px; 
+            margin: 0 auto; 
+            min-height: 100vh; 
+            background: var(--card-bg); 
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 40px rgba(0,0,0,0.12);
+        }
+        
+        header { 
+            background: var(--bg-dark); 
+            color: white; 
+            padding: 14px 16px; 
+            font-weight: 800; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--bg-red);
+            letter-spacing: 0.5px;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+
+        .header-badge {
+            background: var(--bg-red);
+            color: white;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .refresh-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+        .refresh-btn:active { background: rgba(255,255,255,0.2); }
+
+        .loading-pulse { animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinning { display: inline-block; animation: spin 0.8s linear infinite; }
+
+        /* ===== SEARCH + STATS ===== */
+        .search-container { 
+            padding: 14px; 
+            background: var(--card-bg); 
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .search-wrap {
+            position: relative;
+            margin-bottom: 10px;
+        }
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+        .search-input { 
+            width: 100%; 
+            padding: 12px 14px 12px 38px; 
+            border-radius: 12px; 
+            border: 1.5px solid var(--border-color); 
+            background: var(--input-bg); 
+            font-size: 15px; 
+            color: var(--text-main);
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .search-input:focus { border-color: var(--bg-red); }
+        .search-input::placeholder { color: var(--text-muted); }
+
+        /* Stats bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .stat-pill {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 8px 10px;
+            text-align: center;
+        }
+        .stat-pill-val {
+            font-size: 18px;
+            font-weight: 800;
+            display: block;
+            line-height: 1;
+        }
+        .stat-pill-label {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 3px;
+            display: block;
+        }
+
+        /* ===== CARDS ===== */
+        .card { 
+            background: var(--card-bg); 
+            border-radius: 14px; 
+            padding: 16px; 
+            border: 1px solid var(--border-color); 
+            margin-bottom: 10px; 
+            box-shadow: var(--shadow); 
+            position: relative;
+            transition: transform 0.15s, box-shadow 0.15s;
+            cursor: pointer;
+        }
+        .card:active { transform: scale(0.985); box-shadow: none; }
+
+        /* ===== BUTTONS ===== */
+        .btn-main { 
+            width: 100%; 
+            padding: 14px; 
+            background: var(--bg-red); 
+            color: white; 
+            border-radius: 12px; 
+            font-weight: 800; 
+            border: none; 
+            cursor: pointer;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px;
+            font-size: 14px;
+            letter-spacing: 0.3px;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+        .btn-main:active { opacity: 0.85; transform: scale(0.98); }
+
+        .btn-secondary {
+            background: var(--input-bg); 
+            color: var(--text-main); 
+            padding: 9px 14px; 
+            border-radius: 8px; 
+            border: 1px solid var(--border-color); 
+            font-size: 13px; 
+            font-weight: 700; 
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .btn-secondary:active { background: var(--border-color); }
+
+        /* ===== SECTION TITLE ===== */
+        .section-title { 
+            font-size: 10px; 
+            font-weight: 800; 
+            color: var(--bg-red); 
+            border-bottom: 1.5px solid var(--border-color); 
+            padding-bottom: 6px; 
+            margin: 22px 0 12px; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ===== ACCESS CARDS ===== */
+        .access-card {
+            background: #fffbeb; 
+            border: 1px solid #fef3c7; 
+            border-radius: 12px; 
+            padding: 14px; 
+            margin-bottom: 12px;
+        }
+        .access-card-blue {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+        @media (prefers-color-scheme: dark) {
+            .access-card-blue { background: #1e3a5f; border-color: #1d4ed8; }
+        }
+
+        /* ===== FEATURES ===== */
+        .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .chip { 
+            padding: 9px; 
+            border-radius: 8px; 
+            border: 1px solid var(--border-color); 
+            font-size: 11px; 
+            text-align: center; 
+            background: var(--card-bg); 
+            color: var(--text-main);
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .chip:active { opacity: 0.7; }
+        .chip-active { background: #fee2e2; color: #991b1b; border-color: #fca5a5; font-weight: 700; }
+        @media (prefers-color-scheme: dark) {
+            .chip-active { background: #450a0a; color: #fca5a5; border-color: #991b1b; }
+        }
+
+        /* ===== NAV BAR ===== */
+        .nav-bar { 
+            position: sticky; 
+            bottom: 0; 
+            width: 100%; 
+            background: var(--card-bg); 
+            display: flex; 
+            padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px)); 
+            border-top: 1px solid var(--border-color);
+        }
+        .nav-item { 
+            flex: 1; 
+            text-align: center; 
+            background: none; 
+            border: none; 
+            color: var(--text-muted); 
+            font-size: 9px; 
+            font-weight: 800; 
+            cursor: pointer;
+            padding: 6px 4px 2px;
+            transition: color 0.2s;
+            letter-spacing: 0.5px;
+        }
+        .nav-item-icon { font-size: 20px; display: block; margin-bottom: 3px; }
+        .nav-active { color: var(--bg-red); }
+
+        /* ===== PROGRESS ===== */
+        .progress-bar { height: 5px; background: var(--border-color); border-radius: 10px; margin-top: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--success); transition: width 0.4s ease; border-radius: 10px; }
+        .progress-fill-warn { background: var(--warning); }
+        .progress-fill-danger { background: var(--bg-red); }
+
+        /* ===== TASK ITEMS ===== */
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--input-bg);
+            padding: 13px 14px;
+            border-radius: 10px;
+            margin-bottom: 7px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.15s;
+            user-select: none;
+        }
+        .task-item:active { background: var(--border-color); }
+        .task-checkbox {
+            width: 22px;
+            height: 22px;
+            min-width: 22px;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            transition: background 0.2s, border-color 0.2s;
+            font-size: 13px;
+            color: white;
+        }
+        .task-checkbox-done { background: var(--success); border-color: var(--success); }
+
+        textarea.search-input { 
+            height: 80px; 
+            resize: none; 
+            font-family: inherit;
+            padding: 12px 14px;
+            line-height: 1.5;
+        }
+
+        .delete-icon {
+            border: none; 
+            background: none; 
+            font-size: 18px; 
+            padding: 6px 4px; 
+            cursor: pointer; 
+            color: #94a3b8;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .delete-icon:active { opacity: 1; color: var(--bg-red); }
+
+        /* ===== FORM INPUTS ===== */
+        .form-input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border-color);
+            background: white;
+            font-size: 15px;
+            color: #1e293b;
+            margin-bottom: 0;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus { border-color: var(--bg-red); }
+        @media (prefers-color-scheme: dark) {
+            .form-input { background: #0f172a; color: #f1f5f9; }
+        }
+
+        /* ===== STATUS BADGE ===== */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-done { background: #dcfce7; color: #166534; }
+        .badge-inprogress { background: #fef9c3; color: #854d0e; }
+        .badge-new { background: #e0f2fe; color: #075985; }
+        @media (prefers-color-scheme: dark) {
+            .badge-done { background: #14532d; color: #86efac; }
+            .badge-inprogress { background: #422006; color: #fcd34d; }
+            .badge-new { background: #0c4a6e; color: #7dd3fc; }
+        }
+
+        /* ===== INVENTORY ===== */
+        .inventory-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            margin-bottom: 14px;
+            text-align: center;
+        }
+        .inventory-number {
+            font-size: 56px;
+            font-weight: 900;
+            line-height: 1;
+            margin: 10px 0;
+        }
+        .inventory-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+        }
+        .inventory-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 50px 30px;
+            color: var(--text-muted);
+        }
+        .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
+        .empty-title { font-weight: 700; font-size: 16px; margin-bottom: 6px; color: var(--text-main); }
+        .empty-sub { font-size: 13px; }
+
+        /* ===== MODAL for adding property ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            display: flex;
+            align-items: flex-end;
+            padding: 0;
+        }
+        .modal-sheet {
+            background: var(--card-bg);
+            border-radius: 20px 20px 0 0;
+            padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+        .modal-handle {
+            width: 36px;
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 10px;
+            margin: 0 auto 20px;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        .modal-input {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-main);
+            margin-bottom: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        .modal-input:focus { border-color: var(--bg-red); }
+        .modal-actions { display: flex; gap: 10px; }
+        .btn-cancel {
+            flex: 1; padding: 14px; border-radius: 12px; border: 1px solid var(--border-color);
+            background: var(--input-bg); color: var(--text-main); font-weight: 700; font-size: 14px; cursor: pointer;
+        }
+        .btn-confirm {
+            flex: 2; padding: 14px; border-radius: 12px; border: none;
+            background: var(--bg-red); color: white; font-weight: 800; font-size: 14px; cursor: pointer;
+        }
+
+        /* ===== SORT TABS ===== */
+        .sort-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+            scrollbar-width: none;
+        }
+        .sort-tabs::-webkit-scrollbar { display: none; }
+        .sort-tab {
+            flex-shrink: 0;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1.5px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+        .sort-tab-active {
+            background: var(--bg-red);
+            border-color: var(--bg-red);
+            color: white;
+        }
+
+        /* ===== SYNC TOAST ===== */
+        .sync-toast {
+            position: fixed;
+            bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 8px 16px;
+            border-radius: 20px;
+            z-index: 150;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .sync-toast-visible { opacity: 1; }
+
+        /* ===== LINK ROW ===== */
+        .link-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .link-row .form-input { flex: 1; margin-bottom: 0; }
+        .link-open-btn {
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--accent);
+            font-size: 16px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .link-open-btn:disabled { opacity: 0.3; pointer-events: none; }
+
+        /* ===== PHOTO PREVIEW ===== */
+        .photo-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1.5px dashed var(--border-color);
+            background: var(--input-bg);
+            color: var(--accent);
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect, useCallback, useMemo, useRef } = React;
+        
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxx85sSw8jMdNlASWMF5lAgoZVrnKrgOIR8ky9LtRLugsIx8m-kofQv2D_ziiudjlOhkw/exec"; 
+
+        const CENTRIS_FEATURES = {
+            "Approvisionnement eau": ["Aqueduc municipal","Aqueduc privé","Puits artésien","Puits de surface","Eau du lac","Citerne"],
+            "Système d'égouts": ["Municipalité","Fosse septique","Champ d'épuration","Fosse septique scellée","Système BIONEST","Biofiltre"],
+            "Fondation": ["Béton coulé","Blocs de béton","Pierre","Bois","Pilotis","Dalle de béton au sol"],
+            "Revêtement toiture": ["Bardeaux d'asphalte","Tôle","Membrane élastomère","Bitume et gravier","Acier","Bardeaux de cèdre"],
+            "Énergie chauffage": ["Électricité","Gaz naturel","Propane","Bois","Mazout","Biénergie","Énergie solaire"],
+            "Mode de chauffage": ["Air soufflé (pulsé)","Eau chaude","Plinthes électriques","Convection","Radiant"],
+            "Particularités Site": ["Aucun voisin arrière","Boisé","Coin de rue","Cul-de-sac","Bordé par des haies","Enclavé"],
+            "Vue": ["Panoramique","Sur l'eau","Sur la montagne","Sur la ville"]
+        };
+
+        const BG_TASKS = ["Relevé caractéristiques","Photos","Pancarte","Boîte à clé","Envoi admin"];
+
+        function getProgressColor(pct) {
+            if (pct === 100) return '';
+            if (pct >= 60) return 'progress-fill-warn';
+            return 'progress-fill-danger';
+        }
+
+        function getBadge(tasks) {
+            const done = tasks.filter(t => t.done).length;
+            if (done === tasks.length) return { cls: 'badge-done', label: '✓ Complété' };
+            if (done === 0) return { cls: 'badge-new', label: 'Nouveau' };
+            return { cls: 'badge-inprogress', label: `${done}/${tasks.length} tâches` };
+        }
+
+        function Toast({ msg, visible }) {
+            return <div className={`sync-toast ${visible ? 'sync-toast-visible' : ''}`}>{msg}</div>;
+        }
+
+        function AddPropertyModal({ onConfirm, onCancel }) {
+            const [address, setAddress] = useState('');
+            const inputRef = useRef();
+            useEffect(() => { setTimeout(() => inputRef.current?.focus(), 100); }, []);
+            return (
+                <div className="modal-overlay" onClick={onCancel}>
+                    <div className="modal-sheet" onClick={e => e.stopPropagation()}>
+                        <div className="modal-handle"></div>
+                        <div className="modal-title">➕ Nouvelle inscription</div>
+                        <input 
+                            ref={inputRef}
+                            className="modal-input" 
+                            placeholder="Adresse de la propriété..." 
+                            value={address}
+                            onChange={e => setAddress(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && address.trim() && onConfirm(address.trim())}
+                        />
+                        <div className="modal-actions">
+                            <button className="btn-cancel" onClick={onCancel}>Annuler</button>
+                            <button className="btn-confirm" onClick={() => address.trim() && onConfirm(address.trim())} disabled={!address.trim()}>
+                                Ajouter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // ─── ÉVALUATION COMPARATIVE ───────────────────────────────────────────
+        function EvalComparative() {
+            const [step, setStep] = React.useState(1);
+            const [pdfFile, setPdfFile] = React.useState(null);
+            const [sujet, setSujet] = React.useState({ addr:'', prix:'', evalM:'', pi2:'', annee:'', evalSec:'' });
+            const [comparables, setComparables] = React.useState([]);
+            const [loading, setLoading] = React.useState(false);
+            const [loadMsg, setLoadMsg] = React.useState('');
+            const [error, setError] = React.useState('');
+            const [result, setResult] = React.useState(null);
+
+            const fmt = n => Math.round(n).toLocaleString('fr-CA') + ' $';
+            const pct = r => (r*100).toFixed(1) + ' %';
+
+            function handleFile(f) {
+                if (!f || f.type !== 'application/pdf') { setError('Veuillez sélectionner un fichier PDF.'); return; }
+                setPdfFile(f); setError('');
+            }
+
+            async function analyser() {
+                const { addr, prix, evalM, pi2, annee, evalSec } = sujet;
+                if (!addr || !prix || !evalM || !pi2 || !annee || !evalSec) { setError('Remplissez tous les champs.'); return; }
+                if (!pdfFile) { setError('Aucun PDF sélectionné.'); return; }
+                setError(''); setLoading(true); setStep(3);
+                const msgs = ['Lecture du PDF Centris…','Identification des fiches…','Extraction des données…','Calcul des métriques…'];
+                let mi = 0; setLoadMsg(msgs[0]);
+                const iv = setInterval(() => { if(mi < msgs.length-1) setLoadMsg(msgs[++mi]); }, 1800);
+                try {
+                    const b64 = await new Promise((res,rej) => { const r=new FileReader(); r.onload=()=>res(r.result.split(',')[1]); r.onerror=rej; r.readAsDataURL(pdfFile); });
+                    const txt = await apiAnalysePdf(b64, `Extrais toutes les propriétés vendues de ce PDF Centris. Pour chacune, retourne un JSON array avec: adresse (courte), date (ex "févr. 2025"), prix_vendu (nombre), jours (nombre), prix_inscrit (nombre), annee_constr (nombre), chambres (string ex "2+1"), sdb (nombre), pi2_terrain (nombre), eval_mun (nombre). Retourne SEULEMENT le JSON array, sans backticks.`);
+                    clearInterval(iv);
+                    const m = txt.match(/\[[\s\S]*\]/);
+                    const comps = JSON.parse(m ? m[0] : txt.trim());
+                    setComparables(comps);
+                    // Calculs
+                    const avgPrix  = comps.reduce((s,c)=>s+c.prix_vendu,0)/comps.length;
+                    const avgJours = comps.reduce((s,c)=>s+c.jours,0)/comps.length;
+                    const avgRatio = comps.reduce((s,c)=>s+(c.prix_vendu/c.prix_inscrit),0)/comps.length;
+                    const withPi2  = comps.filter(c=>c.pi2_terrain>0);
+                    const avgDpi2  = withPi2.length ? withPi2.reduce((s,c)=>s+(c.prix_vendu/c.pi2_terrain),0)/withPi2.length : 0;
+                    const withEval = comps.filter(c=>c.eval_mun>0);
+                    const avgPeval = withEval.length ? withEval.reduce((s,c)=>s+(c.prix_vendu/c.eval_mun),0)/withEval.length : 0;
+                    const sj = { addr, prix:+prix, evalM:+evalM, pi2:+pi2, annee:+annee, evalSec:+evalSec/100 };
+                    const ests = [
+                        avgDpi2>0  ? { label:'$/Pi² terrain',              val: sj.pi2*avgDpi2 } : null,
+                        avgPeval>0 ? { label:'% éval. mun. comparables',   val: sj.evalM*avgPeval } : null,
+                        { label:'% éval. mun. secteur',    val: sj.evalM*sj.evalSec },
+                        { label:'Prix moyen des ventes',   val: avgPrix },
+                        { label:'% prix d\'inscription',   val: sj.prix*avgRatio },
+                    ].filter(Boolean);
+                    const final = ests.reduce((s,e)=>s+e.val,0)/ests.length;
+                    setResult({ comps, sj, avgPrix, avgJours, avgRatio, ests, final });
+                    setLoading(false);
+                } catch(e) {
+                    clearInterval(iv);
+                    setError('Erreur lors de l\'analyse : ' + (e && e.message ? e.message : 'vérifiez votre connexion.'));
+                    setLoading(false); setStep(2);
+                }
+            }
+
+            const inputStyle = { width:'100%', padding:'10px 12px', fontSize:'14px', borderRadius:'8px', border:'1px solid var(--border-color)', background:'var(--input-bg)', color:'var(--text-main)', marginTop:'4px' };
+            const labelStyle = { fontSize:'11px', fontWeight:'700', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.4px' };
+            const cardStyle = { background:'var(--card-bg)', border:'1px solid var(--border-color)', borderRadius:'12px', padding:'16px', marginBottom:'12px' };
+
+            return (
+                <div style={{padding:'16px', paddingBottom:'80px'}}>
+                    {/* Header */}
+                    <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'16px'}}>
+                        <div>
+                            <div style={{fontSize:'16px', fontWeight:'700', color:'var(--text-main)'}}>Tableau comparatif</div>
+                            <div style={{fontSize:'12px', color:'var(--text-muted)'}}>Analyse automatique Centris</div>
+                        </div>
+                        <div style={{background:'var(--bg-dark)', color:'white', fontSize:'10px', fontWeight:'700', padding:'4px 10px', borderRadius:'6px', letterSpacing:'0.5px'}}>
+                            ÉQUIPE <span style={{color:'var(--bg-red)'}}>BG</span>
+                        </div>
+                    </div>
+
+                    {/* Steps indicator */}
+                    <div style={{display:'flex', alignItems:'center', gap:'6px', marginBottom:'20px', fontSize:'11px'}}>
+                        {[1,2,3].map((s,i) => (
+                            <React.Fragment key={s}>
+                                <div style={{display:'flex', alignItems:'center', gap:'4px', color: step===s ? 'var(--text-main)' : step>s ? 'var(--success)' : 'var(--text-muted)', fontWeight: step===s ? '700':'400'}}>
+                                    <div style={{width:'20px', height:'20px', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'10px', fontWeight:'700',
+                                        background: step===s ? 'var(--bg-red)' : step>s ? 'var(--success)' : 'var(--border-color)',
+                                        color: step>=s ? 'white' : 'var(--text-muted)'}}>
+                                        {step>s ? '✓' : s}
+                                    </div>
+                                    {['PDF Centris','Propriété sujet','Résultat'][i]}
+                                </div>
+                                {i<2 && <div style={{flex:1, height:'1px', background:'var(--border-color)'}}/>}
+                            </React.Fragment>
+                        ))}
+                    </div>
+
+                    {error && <div style={{background:'#fee2e2', border:'1px solid #fca5a5', borderRadius:'8px', padding:'10px 12px', fontSize:'12px', color:'#b91c1c', marginBottom:'12px'}}>{error}</div>}
+
+                    {/* STEP 1 */}
+                    {step === 1 && (
+                        <div>
+                            <div style={{...cardStyle, border:'2px dashed var(--border-color)', textAlign:'center', cursor:'pointer', background:'var(--input-bg)'}}
+                                onClick={() => document.getElementById('evalPdfInput').click()}>
+                                <div style={{fontSize:'32px', marginBottom:'8px'}}>📄</div>
+                                <div style={{fontSize:'14px', fontWeight:'600', color:'var(--text-main)', marginBottom:'4px'}}>Cliquez pour sélectionner le PDF</div>
+                                <div style={{fontSize:'12px', color:'var(--text-muted)'}}>Format « 4 par page courtier »</div>
+                                <input type="file" id="evalPdfInput" accept="application/pdf" style={{display:'none'}} onChange={e => handleFile(e.target.files[0])} />
+                            </div>
+                            {pdfFile && (
+                                <div style={{display:'flex', alignItems:'center', gap:'10px', background:'#f0fdf4', border:'1px solid #86efac', borderRadius:'8px', padding:'10px 12px', marginBottom:'12px'}}>
+                                    <span style={{fontSize:'18px'}}>✅</span>
+                                    <div>
+                                        <div style={{fontSize:'13px', fontWeight:'600', color:'#166534'}}>{pdfFile.name}</div>
+                                        <div style={{fontSize:'11px', color:'var(--text-muted)'}}>{(pdfFile.size/1024).toFixed(0)} Ko</div>
+                                    </div>
+                                </div>
+                            )}
+                            <button className="btn-main" disabled={!pdfFile} onClick={() => setStep(2)} style={{width:'100%', opacity: pdfFile?1:0.5}}>
+                                Continuer →
+                            </button>
+                        </div>
+                    )}
+
+                    {/* STEP 2 */}
+                    {step === 2 && (
+                        <div>
+                            <div style={cardStyle}>
+                                <div style={{fontSize:'13px', fontWeight:'700', color:'var(--text-main)', marginBottom:'12px'}}>Propriété sujet</div>
+                                <div style={{display:'grid', gridTemplateColumns:'1fr', gap:'10px'}}>
+                                    <div>
+                                        <label style={labelStyle}>Adresse complète</label>
+                                        <input style={inputStyle} placeholder="ex. 1630 O'Brien, Chambly" value={sujet.addr} onChange={e => setSujet({...sujet, addr:e.target.value})} />
+                                    </div>
+                                    <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px'}}>
+                                        <div>
+                                            <label style={labelStyle}>Prix inscription ($)</label>
+                                            <input style={inputStyle} type="number" placeholder="595000" value={sujet.prix} onChange={e => setSujet({...sujet, prix:e.target.value})} />
+                                        </div>
+                                        <div>
+                                            <label style={labelStyle}>Éval. mun. ($)</label>
+                                            <input style={inputStyle} type="number" placeholder="488300" value={sujet.evalM} onChange={e => setSujet({...sujet, evalM:e.target.value})} />
+                                        </div>
+                                        <div>
+                                            <label style={labelStyle}>Terrain (pi²)</label>
+                                            <input style={inputStyle} type="number" placeholder="5003" value={sujet.pi2} onChange={e => setSujet({...sujet, pi2:e.target.value})} />
+                                        </div>
+                                        <div>
+                                            <label style={labelStyle}>Année constr.</label>
+                                            <input style={inputStyle} type="number" placeholder="1991" value={sujet.annee} onChange={e => setSujet({...sujet, annee:e.target.value})} />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label style={labelStyle}>% Éval. mun. secteur (ex: 116)</label>
+                                        <input style={inputStyle} type="number" placeholder="116" value={sujet.evalSec} onChange={e => setSujet({...sujet, evalSec:e.target.value})} />
+                                    </div>
+                                </div>
+                            </div>
+                            <div style={{display:'flex', gap:'10px'}}>
+                                <button className="btn-secondary" onClick={() => setStep(1)} style={{flex:1}}>‹ Retour</button>
+                                <button className="btn-main" onClick={analyser} style={{flex:2}}>Analyser le PDF ✨</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* STEP 3 — Loading */}
+                    {step === 3 && loading && (
+                        <div style={{textAlign:'center', padding:'40px 20px'}}>
+                            <div style={{width:'40px', height:'40px', border:'3px solid var(--border-color)', borderTopColor:'var(--bg-red)', borderRadius:'50%', animation:'spin 0.8s linear infinite', margin:'0 auto 16px'}}/>
+                            <div style={{fontSize:'14px', color:'var(--text-main)', marginBottom:'6px'}}>Extraction en cours…</div>
+                            <div style={{fontSize:'12px', color:'var(--text-muted)'}}>{loadMsg}</div>
+                            <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+                        </div>
+                    )}
+
+                    {/* STEP 3 — Result */}
+                    {step === 3 && !loading && result && (
+                        <div>
+                            {/* Subject info */}
+                            <div style={{background:'#eff6ff', border:'1px solid #bfdbfe', borderRadius:'8px', padding:'10px 12px', marginBottom:'12px', fontSize:'12px', color:'#1e40af'}}>
+                                <strong>{result.sj.addr}</strong> · Insc.: {fmt(result.sj.prix)} · Éval.: {fmt(result.sj.evalM)} · {result.sj.pi2.toLocaleString('fr-CA')} pi²
+                            </div>
+
+                            {/* Stats row */}
+                            <div style={{display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'8px', marginBottom:'12px'}}>
+                                {[
+                                    {label:'Prix moyen', val: fmt(result.avgPrix)},
+                                    {label:'Délai moy.', val: Math.round(result.avgJours)+' j'},
+                                    {label:'% Insc.', val: pct(result.avgRatio)},
+                                ].map(s => (
+                                    <div key={s.label} style={{...cardStyle, padding:'10px', textAlign:'center', marginBottom:0}}>
+                                        <div style={{fontSize:'15px', fontWeight:'700', color:'var(--text-main)'}}>{s.val}</div>
+                                        <div style={{fontSize:'10px', color:'var(--text-muted)', marginTop:'2px'}}>{s.label}</div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Comparables table */}
+                            <div style={{...cardStyle, padding:'0', overflow:'hidden', marginBottom:'12px'}}>
+                                <div style={{background:'#1B2A4A', color:'white', padding:'10px 12px', fontSize:'11px', fontWeight:'700', letterSpacing:'0.5px'}}>
+                                    COMPARABLES ({result.comps.length})
+                                </div>
+                                <div style={{overflowX:'auto'}}>
+                                    <table style={{width:'100%', borderCollapse:'collapse', fontSize:'11px', minWidth:'480px'}}>
+                                        <thead>
+                                            <tr style={{background:'#DDE3ED'}}>
+                                                {['Adresse','Date','Prix vendu','J.','% Insc.','Chbres'].map(h => (
+                                                    <th key={h} style={{padding:'7px 8px', textAlign: h==='Adresse'?'left':'right', color:'#2C4A7C', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', whiteSpace:'nowrap', borderBottom:'1.5px solid #2C4A7C'}}>{h}</th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {result.comps.map((c,i) => {
+                                                const r = c.prix_vendu/c.prix_inscrit;
+                                                return (
+                                                    <tr key={i} style={{background: i%2===0 ? 'white' : '#F4F6F9'}}>
+                                                        <td style={{padding:'7px 8px', color:'var(--text-main)', fontWeight:'500', maxWidth:'120px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{c.adresse}</td>
+                                                        <td style={{padding:'7px 8px', textAlign:'right', color:'var(--text-muted)', whiteSpace:'nowrap'}}>{c.date}</td>
+                                                        <td style={{padding:'7px 8px', textAlign:'right', color:'#1A5E9A', fontWeight:'600', whiteSpace:'nowrap'}}>{fmt(c.prix_vendu)}</td>
+                                                        <td style={{padding:'7px 8px', textAlign:'right', color:'var(--text-muted)'}}>{c.jours}</td>
+                                                        <td style={{padding:'7px 8px', textAlign:'right', color: r>=1?'#1E7D45':'#B5770D', fontWeight:'600'}}>{pct(r)}</td>
+                                                        <td style={{padding:'7px 8px', textAlign:'right', color:'var(--text-muted)'}}>{c.chambres}</td>
+                                                    </tr>
+                                                );
+                                            })}
+                                            {/* Moyenne */}
+                                            <tr style={{background:'#2E7D6B'}}>
+                                                <td style={{padding:'8px', color:'white', fontWeight:'700'}}>MOYENNE</td>
+                                                <td/>
+                                                <td style={{padding:'8px', textAlign:'right', color:'white', fontWeight:'700'}}>{fmt(result.avgPrix)}</td>
+                                                <td style={{padding:'8px', textAlign:'right', color:'white'}}>{Math.round(result.avgJours)}</td>
+                                                <td style={{padding:'8px', textAlign:'right', color:'white', fontWeight:'700'}}>{pct(result.avgRatio)}</td>
+                                                <td/>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {/* Estimations */}
+                            <div style={{...cardStyle, padding:'0', overflow:'hidden', marginBottom:'12px'}}>
+                                <div style={{background:'#1B2A4A', color:'white', padding:'10px 12px', fontSize:'11px', fontWeight:'700', letterSpacing:'0.5px'}}>
+                                    ESTIMATION DU PRIX DE VENTE
+                                </div>
+                                {result.ests.map((e,i) => (
+                                    <div key={i} style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 12px', fontSize:'12px', background: i%2===0?'white':'#F4F6F9', borderBottom:'0.5px solid #E8ECF2'}}>
+                                        <span style={{color:'var(--text-muted)', fontStyle:'italic'}}>{e.label}</span>
+                                        <span style={{color:'#1A5E9A', fontWeight:'700'}}>{fmt(e.val)}</span>
+                                    </div>
+                                ))}
+                                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', background:'#265F52', padding:'14px 16px', borderRadius:'0 0 11px 11px'}}>
+                                    <span style={{color:'white', fontSize:'14px', fontWeight:'700'}}>PRIX DE VENTE ESTIMÉ</span>
+                                    <span style={{color:'white', fontSize:'20px', fontWeight:'700'}}>{fmt(result.final)}</span>
+                                </div>
+                            </div>
+
+                            <button className="btn-secondary" style={{width:'100%'}} onClick={() => { setStep(1); setPdfFile(null); setResult(null); setComparables([]); setSujet({ addr:'', prix:'', evalM:'', pi2:'', annee:'', evalSec:'' }); }}>
+                                ↺ Nouveau dossier
+                            </button>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+        // ─── END ÉVALUATION COMPARATIVE ──────────────────────────────────────
+
+        // ─── SYNCHRONISATION v4 ───────────────────────────────────────────────
+        // Chaque modification devient une petite « opération » (créer, modifier un champ,
+        // cocher une tâche…). Elle est appliquée tout de suite à l'écran, mise en file
+        // d'attente sur le téléphone, puis envoyée au serveur une à la fois.
+        // Si le réseau tombe, la file attend et repart toute seule.
+        const CACHE_KEY = 'bg_cache_v4';
+        const OUTBOX_KEY = 'bg_outbox_v4';
+        const TOKEN_KEY = 'bg_token_v4';
+        const TEXT_DEBOUNCE_MS = 900;
+        const EMPTY_DATA = { properties: [], inventory: { pancartes: 0, boites: 0 } };
+
+        const lsGet = (k, fallback) => { try { const v = localStorage.getItem(k); return v === null ? fallback : JSON.parse(v); } catch (e) { return fallback; } };
+        const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+        const lsDel = (k) => { try { localStorage.removeItem(k); } catch (e) {} };
+
+        const newId = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+            : Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+
+        // Types d'erreur (propriété « kind » plutôt que des classes, plus fiable avec Babel)
+        const apiError = (kind, msg) => { const e = new Error(msg); e.kind = kind; return e; };
+        const isAuthError = (e) => e && e.kind === 'auth';
+        const isServerError = (e) => e && e.kind === 'server';   // refus définitif : ne pas réessayer
+
+        // Dans l'appli servie par Google, on appelle le serveur directement (google.script.run).
+        // Ailleurs (test local, ancienne adresse), on passe par l'URL du script.
+        const GAS = (typeof google !== 'undefined' && google.script && google.script.run) ? google.script.run : null;
+
+        function gasCall(fn, ...args) {
+            return new Promise((resolve, reject) => {
+                GAS.withSuccessHandler(resolve)
+                   .withFailureHandler(err => reject(new Error((err && err.message) || 'Connexion impossible')))[fn](...args);
+            });
+        }
+
+        function checkResult(data) {
+            if (!data) throw new Error('Réponse vide');
+            if (data.error === 'unauthorized') throw apiError('auth', 'Code invalide');
+            if (data.error === 'busy') throw new Error('Serveur occupé');
+            if (!data.ok) throw apiError('server', data.error || 'Erreur serveur');
+            return data;
+        }
+
+        async function readJson(res) {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            try { return await res.json(); } catch (e) { throw new Error('Réponse illisible'); }
+        }
+
+        async function apiGet(token) {
+            if (GAS) return checkResult(await gasCall('apiGet', token));
+            return checkResult(await readJson(await fetch(`${SCRIPT_URL}?get=json&token=${encodeURIComponent(token)}&t=${Date.now()}`)));
+        }
+
+        async function apiPost(token, op) {
+            if (GAS) return checkResult(await gasCall('apiPost', { ...op, token }));
+            return checkResult(await readJson(await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ ...op, token })
+            })));
+        }
+
+        async function apiAnalysePdf(b64, prompt) {
+            const token = lsGet(TOKEN_KEY, '');
+            if (GAS) return checkResult(await gasCall('analysePdf', token, b64, prompt)).text;
+            return checkResult(await readJson(await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'analysePdf', token, pdf: b64, prompt })
+            }))).text;
+        }
+
+        // Applique une opération à l'état local (même logique que le serveur)
+        function applyOp(state, op) {
+            const { properties, inventory } = state;
+            const mapProp = (fn) => ({ inventory, properties: properties.map(p => p.id === op.id ? fn(p) : p) });
+            switch (op.action) {
+                case 'create':
+                    if (properties.some(p => p.id === op.property.id)) return state;
+                    return { inventory, properties: [op.property, ...properties] };
+                case 'patch':
+                    return mapProp(p => ({ ...p, ...op.fields }));
+                case 'task':
+                    return mapProp(p => {
+                        const tasks = p.tasks || [];
+                        return { ...p, tasks: tasks.some(t => t.label === op.label)
+                            ? tasks.map(t => t.label === op.label ? { ...t, done: op.done } : t)
+                            : [...tasks, { label: op.label, done: op.done }] };
+                    });
+                case 'feature':
+                    return mapProp(p => {
+                        const cur = (p.features && p.features[op.cat]) || [];
+                        const next = op.on ? (cur.includes(op.value) ? cur : [...cur, op.value]) : cur.filter(v => v !== op.value);
+                        return { ...p, features: { ...(p.features || {}), [op.cat]: next } };
+                    });
+                case 'delete':
+                    return { inventory, properties: properties.filter(p => p.id !== op.id) };
+                case 'inventory': {
+                    const inv = { ...inventory };
+                    Object.keys(op.delta).forEach(k => { inv[k] = Math.max(0, (inv[k] || 0) + (op.delta[k] || 0)); });
+                    return { properties, inventory: inv };
+                }
+                default:
+                    return state;
+            }
+        }
+
+        // Tâches d'une fiche : celles déjà enregistrées + celles ajoutées à BG_TASKS depuis
+        function tasksOf(p) {
+            const t = p.tasks || [];
+            return [...t, ...BG_TASKS.filter(l => !t.some(x => x.label === l)).map(l => ({ label: l, done: false }))];
+        }
+
+        function serverErrorLabel(msg) {
+            if (msg === 'texte_trop_long') return 'texte trop long';
+            return msg;
+        }
+
+        function LoginScreen({ onSubmit, error, busy }) {
+            const [code, setCode] = useState('');
+            const submit = () => code.trim() && !busy && onSubmit(code.trim());
+            return (
+                <div className="container">
+                    <header>
+                        <div style={{width:36}}></div>
+                        <div className="header-logo">ÉQUIPE BG <span className="header-badge">PRO</span></div>
+                        <div style={{width:36}}></div>
+                    </header>
+                    <div style={{padding:'48px 24px', textAlign:'center'}}>
+                        <div style={{fontSize:40, marginBottom:12}}>🔐</div>
+                        <div style={{fontSize:18, fontWeight:800, marginBottom:6}}>Code d'accès de l'équipe</div>
+                        <div style={{fontSize:13, color:'var(--text-muted)', marginBottom:20}}>À entrer une seule fois sur cet appareil.</div>
+                        <input className="modal-input" type="password" autoComplete="current-password" placeholder="Code d'accès"
+                            value={code} onChange={e => setCode(e.target.value)} onKeyDown={e => e.key === 'Enter' && submit()} />
+                        {error && <div style={{color:'var(--bg-red)', fontSize:13, fontWeight:700, marginBottom:12}}>{error}</div>}
+                        <button className="btn-main" onClick={submit} disabled={busy} style={{opacity: busy ? 0.6 : 1}}>
+                            {busy ? 'Vérification…' : 'Entrer'}
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        function App() {
+            const [token, setToken] = useState(() => lsGet(TOKEN_KEY, ''));
+            const [authError, setAuthError] = useState('');
+            const [authBusy, setAuthBusy] = useState(false);
+            const [data, setData] = useState(() => lsGet(CACHE_KEY, EMPTY_DATA));
+            const [view, setView] = useState('list');
+            const [currentId, setCurrentId] = useState(null);
+            const [syncing, setSyncing] = useState(false);
+            const [pending, setPending] = useState(() => lsGet(OUTBOX_KEY, []).length);
+            const [search, setSearch] = useState("");
+            const [filter, setFilter] = useState('all');
+            const [showModal, setShowModal] = useState(false);
+            const [toast, setToast] = useState({ msg: '', visible: false });
+            const toastTimer = useRef(null);
+
+            const tokenRef = useRef(token);
+            const outbox = useRef(lsGet(OUTBOX_KEY, []));
+            const timers = useRef({});          // modifications de texte en attente (délai de frappe)
+            const flushing = useRef(false);
+
+            const { properties, inventory } = data;
+
+            useEffect(() => { lsDel('bg_backup'); }, []);           // ancienne copie v3 (sans ID)
+            useEffect(() => { lsSet(CACHE_KEY, data); }, [data]);
+            useEffect(() => { tokenRef.current = token; }, [token]);
+
+            const showToast = (msg) => {
+                clearTimeout(toastTimer.current);
+                setToast({ msg, visible: true });
+                toastTimer.current = setTimeout(() => setToast(t => ({...t, visible: false})), 2200);
+            };
+
+            const persistOutbox = () => { lsSet(OUTBOX_KEY, outbox.current); setPending(outbox.current.length); };
+
+            const handleAuthLost = () => {
+                lsDel(TOKEN_KEY);
+                tokenRef.current = '';
+                setToken('');
+                setAuthError("Le code d'accès a changé. Entrez le nouveau code.");
+            };
+
+            // Envoie la file d'attente au serveur, une opération à la fois
+            const flush = useCallback(async () => {
+                if (flushing.current || !tokenRef.current || outbox.current.length === 0) return;
+                flushing.current = true;
+                setSyncing(true);
+                let sent = 0, failed = false;
+                while (outbox.current.length > 0) {
+                    const op = outbox.current[0];
+                    try {
+                        const res = await apiPost(tokenRef.current, op);
+                        outbox.current.shift();
+                        persistOutbox();
+                        sent++;
+                        if (res.inventory && outbox.current.every(o => o.action !== 'inventory')) {
+                            setData(d => ({ ...d, inventory: res.inventory }));
+                        }
+                    } catch (err) {
+                        if (isAuthError(err)) { handleAuthLost(); failed = true; break; }
+                        if (isServerError(err)) {
+                            outbox.current.shift(); persistOutbox();
+                            showToast('⚠ Non sauvegardé : ' + serverErrorLabel(err.message));
+                            failed = true;
+                            continue;
+                        }
+                        // Réseau ou serveur occupé : on garde la file et on réessaiera
+                        showToast(navigator.onLine ? '⚠ Sauvegarde en attente, nouvel essai bientôt' : '📴 Hors ligne : sera envoyé au retour du réseau');
+                        failed = true;
+                        setTimeout(() => flush(), 15000);
+                        break;
+                    }
+                }
+                flushing.current = false;
+                setSyncing(false);
+                if (sent > 0 && !failed) showToast('✓ Sauvegardé');
+                if (outbox.current.length > 0 && !failed) flush();
+            }, []);
+
+            const enqueue = useCallback((op) => {
+                outbox.current.push(op);
+                persistOutbox();
+                flush();
+            }, [flush]);
+
+            // Envoie tout de suite les textes encore en délai de frappe
+            const flushTimers = useCallback(() => {
+                Object.keys(timers.current).forEach(k => {
+                    clearTimeout(timers.current[k].t);
+                    outbox.current.push(timers.current[k].op);
+                });
+                timers.current = {};
+                persistOutbox();
+            }, []);
+
+            // Applique localement + envoie (avec délai pour les champs texte)
+            const dispatch = useCallback((op, debounceKey) => {
+                setData(d => applyOp(d, op));
+                if (debounceKey) {
+                    if (timers.current[debounceKey]) clearTimeout(timers.current[debounceKey].t);
+                    const t = setTimeout(() => {
+                        delete timers.current[debounceKey];
+                        enqueue(op);
+                    }, TEXT_DEBOUNCE_MS);
+                    timers.current[debounceKey] = { t, op };
+                } else {
+                    enqueue(op);
+                }
+            }, [enqueue]);
+
+            const refresh = useCallback(async () => {
+                if (!tokenRef.current) return;
+                flushTimers();
+                await flush();
+                setSyncing(true);
+                try {
+                    const server = await apiGet(tokenRef.current);
+                    // Données du serveur + ce qui n'est pas encore parti (pour ne rien perdre à l'écran)
+                    const local = [...outbox.current, ...Object.values(timers.current).map(x => x.op)];
+                    setData(local.reduce(applyOp, { properties: server.properties || [], inventory: server.inventory || EMPTY_DATA.inventory }));
+                    showToast(outbox.current.length ? `✓ Synchronisé (${outbox.current.length} en attente)` : '✓ Synchronisé');
+                } catch (err) {
+                    if (isAuthError(err)) handleAuthLost();
+                    else showToast('⚠ Erreur de sync : données locales affichées');
+                } finally {
+                    setTimeout(() => setSyncing(false), 500);
+                }
+            }, [flush, flushTimers]);
+
+            useEffect(() => {
+                if (token) refresh();
+                const onOnline = () => flush();
+                const onVisible = () => {
+                    if (document.visibilityState === 'visible') refresh();
+                    else { flushTimers(); flush(); }
+                };
+                window.addEventListener('online', onOnline);
+                document.addEventListener('visibilitychange', onVisible);
+                return () => {
+                    window.removeEventListener('online', onOnline);
+                    document.removeEventListener('visibilitychange', onVisible);
+                };
+            }, [token]);
+
+            const login = async (code) => {
+                setAuthBusy(true); setAuthError('');
+                try {
+                    const server = await apiGet(code);
+                    lsSet(TOKEN_KEY, code);
+                    tokenRef.current = code;
+                    const local = outbox.current;
+                    setData(local.reduce(applyOp, { properties: server.properties || [], inventory: server.inventory || EMPTY_DATA.inventory }));
+                    setToken(code);
+                } catch (err) {
+                    setAuthError(isAuthError(err) ? 'Code invalide.' : 'Connexion impossible. Vérifiez le réseau.');
+                } finally {
+                    setAuthBusy(false);
+                }
+            };
+
+            const lockDevice = () => {
+                const n = outbox.current.length + Object.keys(timers.current).length;
+                const msg = n > 0
+                    ? `${n} modification(s) pas encore envoyée(s) seront perdues. Verrouiller quand même ?`
+                    : "Effacer les données et le code d'accès de cet appareil ?";
+                if (!confirm(msg)) return;
+                Object.values(timers.current).forEach(x => clearTimeout(x.t));
+                timers.current = {};
+                outbox.current = [];
+                [TOKEN_KEY, CACHE_KEY, OUTBOX_KEY].forEach(lsDel);
+                tokenRef.current = '';
+                setData(EMPTY_DATA); setPending(0); setCurrentId(null); setView('list');
+                setToken('');
+            };
+
+            // ── Actions ──
+            const createNewProperty = (address) => {
+                const property = {
+                    id: newId(),
+                    name: address,
+                    notes: "", photoLink: "", centrisLink: "", lockboxCode: "", accessCode: "", fubId: "",
+                    features: Object.keys(CENTRIS_FEATURES).reduce((acc, key) => { acc[key] = []; return acc; }, {}),
+                    tasks: BG_TASKS.map(l => ({ label: l, done: false }))
+                };
+                dispatch({ action: 'create', property });
+                setShowModal(false);
+                setCurrentId(property.id);
+                setView('dashboard');
+            };
+
+            const deleteProperty = (id, e) => {
+                e.stopPropagation();
+                if (confirm("Supprimer définitivement ce dossier ?")) {
+                    Object.keys(timers.current).filter(k => k.startsWith(id + ':')).forEach(k => {
+                        clearTimeout(timers.current[k].t); delete timers.current[k];
+                    });
+                    dispatch({ action: 'delete', id });
+                    if (currentId === id) { setCurrentId(null); setView('list'); }
+                }
+            };
+
+            const toggleTask = (p, t) => {
+                if (navigator.vibrate) navigator.vibrate(40);
+                const done = !t.done;
+                dispatch({ action: 'task', id: p.id, label: t.label, done });
+                // Cocher Pancarte / Boîte à clé retire 1 du stock ; décocher le remet
+                if (t.label === "Pancarte") dispatch({ action: 'inventory', delta: { pancartes: done ? -1 : 1 } });
+                if (t.label === "Boîte à clé") dispatch({ action: 'inventory', delta: { boites: done ? -1 : 1 } });
+            };
+
+            const setField = (p, field, value) => dispatch({ action: 'patch', id: p.id, fields: { [field]: value } }, `${p.id}:${field}`);
+
+            const toggleFeature = (p, cat, value) => {
+                const on = !(p.features?.[cat]?.includes(value));
+                dispatch({ action: 'feature', id: p.id, cat, value, on });
+            };
+
+            const changeStock = (key, delta) => dispatch({ action: 'inventory', delta: { [key]: delta } });
+
+            const openGPS = (address) => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, '_blank');
+            const openFUB = (id) => window.open(`https://equipebg.followupboss.com/2/people/view/${id.trim()}`, '_blank');
+
+            const filteredProperties = useMemo(() => {
+                const q = search.toLowerCase();
+                let list = properties.filter(p => p.name.toLowerCase().includes(q));
+                if (filter === 'done') list = list.filter(p => tasksOf(p).every(t => t.done));
+                if (filter === 'inprogress') list = list.filter(p => tasksOf(p).some(t => t.done) && !tasksOf(p).every(t => t.done));
+                if (filter === 'new') list = list.filter(p => tasksOf(p).every(t => !t.done));
+                return list;
+            }, [properties, search, filter]);
+
+            const stats = useMemo(() => ({
+                total: properties.length,
+                done: properties.filter(p => tasksOf(p).every(t => t.done)).length,
+                inprogress: properties.filter(p => tasksOf(p).some(t => t.done) && !tasksOf(p).every(t => t.done)).length,
+            }), [properties]);
+
+            if (!token) return <LoginScreen onSubmit={login} error={authError} busy={authBusy} />;
+
+            const prop = currentId ? properties.find(p => p.id === currentId) : null;
+            const doneCount = prop ? tasksOf(prop).filter(t => t.done).length : 0;
+            const donePctProp = prop ? (doneCount / tasksOf(prop).length) * 100 : 0;
+
+            return (
+                <div className="container">
+                    <header>
+                        <div style={{width:36, fontSize:11, fontWeight:800, color:'#fbbf24'}} title="Modifications en attente d'envoi">
+                            {pending > 0 ? `⏳${pending}` : ''}
+                        </div>
+                        <div className="header-logo">
+                            ÉQUIPE BG
+                            <span className="header-badge">PRO</span>
+                        </div>
+                        <button onClick={refresh} className={`refresh-btn ${syncing ? 'loading-pulse' : ''}`} title="Synchroniser">
+                            <span className={syncing ? 'spinning' : ''} style={{display:'inline-block'}}>🔄</span>
+                        </button>
+                    </header>
+
+                    <main style={{padding: view === 'list' ? 0 : '20px', flex:1, overflowY:'auto'}}>
+
+                        {/* ===== LIST VIEW ===== */}
+                        {view === 'list' && (
+                            <>
+                                <div className="search-container">
+                                    <div className="stats-bar">
+                                        <div className="stat-pill">
+                                            <span className="stat-pill-val" style={{color:'var(--text-main)'}}>{stats.total}</span>
+                                            <span className="stat-pill-label">Total</span>
+                                        </div>
+                                        <div className="stat-pill">
+                                            <span className="stat-pill-val" style={{color:'var(--warning)'}}>{stats.inprogress}</span>
+                                            <span className="stat-pill-label">En cours</span>
+                                        </div>
+                                        <div className="stat-pill">
+                                            <span className="stat-pill-val" style={{color:'var(--success)'}}>{stats.done}</span>
+                                            <span className="stat-pill-label">Complétés</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="search-wrap">
+                                        <span className="search-icon">🔍</span>
+                                        <input
+                                            className="search-input"
+                                            placeholder="Rechercher une adresse..."
+                                            value={search}
+                                            onChange={e => setSearch(e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="sort-tabs">
+                                        {[
+                                            { key:'all', label:`Tous (${stats.total})` },
+                                            { key:'new', label:'Nouveaux' },
+                                            { key:'inprogress', label:'En cours' },
+                                            { key:'done', label:'Complétés' },
+                                        ].map(t => (
+                                            <button key={t.key} className={`sort-tab ${filter===t.key?'sort-tab-active':''}`} onClick={() => setFilter(t.key)}>
+                                                {t.label}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <button className="btn-main" onClick={() => setShowModal(true)}>
+                                        ➕ NOUVELLE INSCRIPTION
+                                    </button>
+                                </div>
+
+                                <div style={{padding:'12px 14px'}}>
+                                    {filteredProperties.length === 0 && (
+                                        <div className="empty-state">
+                                            <div className="empty-icon">🏠</div>
+                                            <div className="empty-title">Aucune propriété</div>
+                                            <div className="empty-sub">{search ? 'Aucun résultat pour cette recherche.' : 'Ajoutez votre première inscription.'}</div>
+                                        </div>
+                                    )}
+                                    {filteredProperties.map(p => {
+                                        const donePct = (tasksOf(p).filter(t => t.done).length / tasksOf(p).length) * 100;
+                                        const badge = getBadge(tasksOf(p));
+                                        return (
+                                            <div key={p.id} className="card" onClick={() => { setCurrentId(p.id); setView('dashboard'); }}>
+                                                <div style={{display:'flex', justifyContent:'space-between', alignItems:'flex-start'}}>
+                                                    <div style={{flex:1, minWidth:0}}>
+                                                        <strong style={{fontSize:15, display:'block', marginBottom:5, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', paddingRight:8}}>
+                                                            {p.name}
+                                                        </strong>
+                                                        <div style={{display:'flex', gap:8, flexWrap:'wrap', alignItems:'center'}}>
+                                                            <span className={`status-badge ${badge.cls}`}>{badge.label}</span>
+                                                            {p.lockboxCode && <span style={{fontSize:11, color:'var(--warning)', fontWeight:700}}>🔑 {p.lockboxCode}</span>}
+                                                            {p.fubId && <span style={{fontSize:11, color:'var(--fub-color)', fontWeight:700}}>FUB ✓</span>}
+                                                        </div>
+                                                    </div>
+                                                    <button onClick={(e) => deleteProperty(p.id, e)} className="delete-icon">🗑️</button>
+                                                </div>
+                                                <div className="progress-bar">
+                                                    <div className={`progress-fill ${getProgressColor(donePct)}`} style={{width:`${donePct}%`}}></div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </>
+                        )}
+
+                        {/* ===== DOSSIER SUPPRIMÉ PAR QUELQU'UN D'AUTRE ===== */}
+                        {view === 'dashboard' && !prop && (
+                            <div className="empty-state">
+                                <div className="empty-icon">🗂️</div>
+                                <div className="empty-title">Ce dossier n'existe plus</div>
+                                <div className="empty-sub" style={{marginBottom:16}}>Il a peut-être été supprimé par un autre membre de l'équipe.</div>
+                                <button onClick={() => { setView('list'); setCurrentId(null); }} className="btn-secondary">‹ RETOUR</button>
+                            </div>
+                        )}
+
+                        {/* ===== DASHBOARD VIEW ===== */}
+                        {view === 'dashboard' && prop && (
+                            <div style={{paddingBottom:80}}>
+                                <div style={{display:'flex', justifyContent:'space-between', marginBottom:18, flexWrap:'wrap', gap:8}}>
+                                    <button onClick={() => setView('list')} className="btn-secondary">‹ RETOUR</button>
+                                    <div style={{display:'flex', gap:6}}>
+                                        {prop.fubId && (
+                                            <button onClick={() => openFUB(prop.fubId)} className="btn-secondary" style={{background:'#e8eaf6', color:'var(--fub-color)', border:'none'}}>📞 FUB</button>
+                                        )}
+                                        {prop.centrisLink && (
+                                            <button onClick={() => window.open(prop.centrisLink, '_blank')} className="btn-secondary" style={{color:'var(--accent)'}}>🌐 Centris</button>
+                                        )}
+                                        {prop.photoLink && (
+                                            <button onClick={() => window.open(prop.photoLink, '_blank')} className="btn-secondary" style={{color:'#7c3aed'}}>📷 Photos</button>
+                                        )}
+                                        <button onClick={() => openGPS(prop.name)} className="btn-secondary">📍 GPS</button>
+                                    </div>
+                                </div>
+
+                                <h2 style={{margin:'0 0 4px 0', fontSize:20, fontWeight:800, lineHeight:1.3}}>{prop.name}</h2>
+
+                                <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:6}}>
+                                    <div className="progress-bar" style={{flex:1}}>
+                                        <div className={`progress-fill ${getProgressColor(donePctProp)}`} style={{width:`${donePctProp}%`}}></div>
+                                    </div>
+                                    <span style={{fontSize:12, fontWeight:700, color:'var(--text-muted)', whiteSpace:'nowrap'}}>
+                                        {doneCount}/{tasksOf(prop).length} tâches
+                                    </span>
+                                </div>
+
+                                {/* FUB */}
+                                <div className="section-title">👤 Follow Up Boss</div>
+                                <div className="access-card access-card-blue">
+                                    <label style={{fontSize:10, fontWeight:800, color:'var(--fub-color)', display:'block', marginBottom:6}}>ID CONTACT (FUB)</label>
+                                    <div style={{display:'flex', gap:8}}>
+                                        <input className="form-input" style={{flex:1}} placeholder="Ex: 1234567" value={prop.fubId || ""}
+                                            onChange={e => setField(prop, 'fubId', e.target.value.trim())} />
+                                        {prop.fubId && (
+                                            <button onClick={() => openFUB(prop.fubId)} className="link-open-btn">↗</button>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Accès */}
+                                <div className="section-title">🔐 Accès & Sécurité</div>
+                                <div className="access-card">
+                                    <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:10}}>
+                                        <div>
+                                            <label style={{fontSize:10, fontWeight:800, color:'#92400e', display:'block', marginBottom:6}}>BOÎTE À CLÉ</label>
+                                            <input className="form-input" placeholder="Code" value={prop.lockboxCode || ""}
+                                                onChange={e => setField(prop, 'lockboxCode', e.target.value)} />
+                                        </div>
+                                        <div>
+                                            <label style={{fontSize:10, fontWeight:800, color:'#92400e', display:'block', marginBottom:6}}>ALARME</label>
+                                            <input className="form-input" placeholder="Code" value={prop.accessCode || ""}
+                                                onChange={e => setField(prop, 'accessCode', e.target.value)} />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Liens */}
+                                <div className="section-title">📂 Liens & Notes</div>
+                                <div style={{marginBottom:10}}>
+                                    <label style={{fontSize:10, fontWeight:700, color:'var(--text-muted)', display:'block', marginBottom:5, textTransform:'uppercase', letterSpacing:0.5}}>Centris</label>
+                                    <div className="link-row">
+                                        <input className="form-input" placeholder="https://www.centris.ca/..." value={prop.centrisLink || ""}
+                                            onChange={e => setField(prop, 'centrisLink', e.target.value)} />
+                                        <button className="link-open-btn" disabled={!prop.centrisLink} onClick={() => window.open(prop.centrisLink,'_blank')}>↗</button>
+                                    </div>
+                                </div>
+                                <div style={{marginBottom:10}}>
+                                    <label style={{fontSize:10, fontWeight:700, color:'var(--text-muted)', display:'block', marginBottom:5, textTransform:'uppercase', letterSpacing:0.5}}>Photos</label>
+                                    <div className="link-row">
+                                        <input className="form-input" placeholder="Lien Google Drive, Dropbox..." value={prop.photoLink || ""}
+                                            onChange={e => setField(prop, 'photoLink', e.target.value)} />
+                                        <button className="link-open-btn" disabled={!prop.photoLink} onClick={() => window.open(prop.photoLink,'_blank')}>↗</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label style={{fontSize:10, fontWeight:700, color:'var(--text-muted)', display:'block', marginBottom:5, textTransform:'uppercase', letterSpacing:0.5}}>Notes</label>
+                                    <textarea className="form-input" style={{height:90, resize:'none', display:'block', lineHeight:1.5}}
+                                        placeholder="Chien, accès particulier, etc." value={prop.notes || ""}
+                                        onChange={e => setField(prop, 'notes', e.target.value)} />
+                                </div>
+
+                                {/* Checklist */}
+                                <div className="section-title">✅ Checklist Terrain</div>
+                                {tasksOf(prop).map(t => (
+                                    <div key={t.label} className="task-item" onClick={() => toggleTask(prop, t)}>
+                                        <div className={`task-checkbox ${t.done?'task-checkbox-done':''}`}>
+                                            {t.done && "✓"}
+                                        </div>
+                                        <div style={{flex:1}}>
+                                            <span style={{textDecoration:t.done?'line-through':'none', opacity:t.done?0.45:1, fontWeight:600, fontSize:15}}>
+                                                {t.label}
+                                            </span>
+                                            {(t.label==="Pancarte"||t.label==="Boîte à clé") && !t.done && (
+                                                <div style={{fontSize:10, color:'var(--bg-red)', marginTop:2, fontWeight:600}}>
+                                                    ↓ Retire 1 du stock
+                                                </div>
+                                            )}
+                                        </div>
+                                        {t.done && <span style={{fontSize:18}}>✓</span>}
+                                    </div>
+                                ))}
+
+                                {/* Centris features */}
+                                <div className="section-title">📝 Caractéristiques Centris</div>
+                                {Object.keys(CENTRIS_FEATURES).map(cat => (
+                                    <div key={cat} style={{marginBottom:18}}>
+                                        <div style={{fontSize:11, fontWeight:800, color:'var(--text-muted)', marginBottom:8, textTransform:'uppercase', letterSpacing:0.5}}>{cat}</div>
+                                        <div className="feature-grid">
+                                            {CENTRIS_FEATURES[cat].map(f => {
+                                                const active = prop.features?.[cat]?.includes(f);
+                                                return (
+                                                    <div key={f} className={`chip ${active?'chip-active':''}`} onClick={() => toggleFeature(prop, cat, f)}>{f}</div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* ===== INVENTORY VIEW ===== */}
+                        {view === 'inventory' && (
+                            <div style={{padding:'20px 16px'}}>
+                                <div className="inventory-card">
+                                    <div className="inventory-label">STOCK PANCARTES</div>
+                                    <div className="inventory-number" style={{color:'var(--bg-red)'}}>{inventory.pancartes}</div>
+                                    <div className="inventory-btns">
+                                        <button className="btn-main" style={{background:'#e2e8f0', color:'#1e293b'}} onClick={() => changeStock('pancartes', -1)}>− 1</button>
+                                        <button className="btn-main" onClick={() => changeStock('pancartes', 1)}>+ 1</button>
+                                    </div>
+                                </div>
+
+                                <div className="inventory-card">
+                                    <div className="inventory-label">STOCK BOÎTES À CLÉS</div>
+                                    <div className="inventory-number" style={{color:'var(--warning)'}}>{inventory.boites}</div>
+                                    <div className="inventory-btns">
+                                        <button className="btn-main" style={{background:'#e2e8f0', color:'#1e293b'}} onClick={() => changeStock('boites', -1)}>− 1</button>
+                                        <button className="btn-main" style={{background:'var(--warning)'}} onClick={() => changeStock('boites', 1)}>+ 1</button>
+                                    </div>
+                                </div>
+
+                                <button className="btn-secondary" style={{width:'100%', marginTop:24}} onClick={lockDevice}>
+                                    🔒 Verrouiller cet appareil
+                                </button>
+                                <div style={{fontSize:11, color:'var(--text-muted)', textAlign:'center', marginTop:6}}>
+                                    Efface les codes et les données gardés sur ce téléphone.
+                                </div>
+                            </div>
+                        )}
+                        {/* ===== EVALUATION VIEW ===== */}
+                        {view === 'eval' && <EvalComparative />}
+
+                    </main>
+
+                    {/* Bottom Nav */}
+                    <nav className="nav-bar">
+                        <button className={`nav-item ${view !== 'inventory' && view !== 'eval' ? 'nav-active' : ''}`} onClick={() => { setView('list'); setCurrentId(null); }}>
+                            <span className="nav-item-icon">🏠</span>PROPRIÉTÉS
+                        </button>
+                        <button className={`nav-item ${view === 'inventory' ? 'nav-active' : ''}`} onClick={() => setView('inventory')}>
+                            <span className="nav-item-icon">📦</span>INVENTAIRE
+                        </button>
+                        <button className={`nav-item ${view === 'eval' ? 'nav-active' : ''}`} onClick={() => setView('eval')}>
+                            <span className="nav-item-icon">📊</span>ÉVALUATION
+                        </button>
+                    </nav>
+
+                    {showModal && <AddPropertyModal onConfirm={createNewProperty} onCancel={() => setShowModal(false)} />}
+
+                    <Toast msg={toast.msg} visible={toast.visible} />
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
