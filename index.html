@@ -927,6 +927,32 @@
         const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
         const lsDel = (k) => { try { localStorage.removeItem(k); } catch (e) {} };
 
+        // ─── SESSION : le code expire à 17 h (ou 2 h après une connexion en soirée) ───
+        const SESSION_END_HOUR = 17;
+        const EVENING_SESSION_MS = 2 * 60 * 60 * 1000;
+        function sessionExpiry(now = new Date()) {
+            if (now.getHours() < SESSION_END_HOUR) {
+                const end = new Date(now); end.setHours(SESSION_END_HOUR, 0, 0, 0);
+                return end.getTime();
+            }
+            return now.getTime() + EVENING_SESSION_MS;
+        }
+        // Retourne le code seulement s'il est encore valide (l'ancien format sans date = expiré)
+        function readToken() {
+            const t = lsGet(TOKEN_KEY, null);
+            if (!t || typeof t !== 'object' || !t.code || !t.exp || Date.now() >= t.exp) return '';
+            return t.code;
+        }
+        const saveToken = (code) => lsSet(TOKEN_KEY, { code, exp: sessionExpiry() });
+        const sessionEndLabel = () => {
+            const t = lsGet(TOKEN_KEY, null);
+            if (!t || !t.exp) return '';
+            const d = new Date(t.exp);
+            return d.getHours() + ' h ' + String(d.getMinutes()).padStart(2, '0');
+        };
+        // Au démarrage : session expirée → on efface le code et la copie des fiches (codes de boîte, alarmes…)
+        if (!readToken()) { lsDel(TOKEN_KEY); lsDel(CACHE_KEY); }
+
         const newId = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
             : Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
 
@@ -974,7 +1000,7 @@
         }
 
         async function apiAnalysePdf(b64, prompt) {
-            const token = lsGet(TOKEN_KEY, '');
+            const token = readToken();
             if (GAS) return checkResult(await gasCall('analysePdf', token, b64, prompt)).text;
             return checkResult(await readJson(await fetch(SCRIPT_URL, {
                 method: 'POST',
@@ -1042,7 +1068,7 @@
                     <div style={{padding:'48px 24px', textAlign:'center'}}>
                         <div style={{fontSize:40, marginBottom:12}}>🔐</div>
                         <div style={{fontSize:18, fontWeight:800, marginBottom:6}}>Code d'accès de l'équipe</div>
-                        <div style={{fontSize:13, color:'var(--text-muted)', marginBottom:20}}>À entrer une seule fois sur cet appareil.</div>
+                        <div style={{fontSize:13, color:'var(--text-muted)', marginBottom:20}}>Valide jusqu'à 17 h (2 h si entré en soirée).</div>
                         <input className="modal-input" type="password" autoComplete="current-password" placeholder="Code d'accès"
                             value={code} onChange={e => setCode(e.target.value)} onKeyDown={e => e.key === 'Enter' && submit()} />
                         {error && <div style={{color:'var(--bg-red)', fontSize:13, fontWeight:700, marginBottom:12}}>{error}</div>}
@@ -1055,7 +1081,7 @@
         }
 
         function App() {
-            const [token, setToken] = useState(() => lsGet(TOKEN_KEY, ''));
+            const [token, setToken] = useState(() => readToken());
             const [authError, setAuthError] = useState('');
             const [authBusy, setAuthBusy] = useState(false);
             const [data, setData] = useState(() => lsGet(CACHE_KEY, EMPTY_DATA));
@@ -1164,7 +1190,7 @@
             }, [enqueue]);
 
             const refresh = useCallback(async () => {
-                if (!tokenRef.current) return;
+                if (!tokenRef.current || !readToken()) return;
                 flushTimers();
                 await flush();
                 setSyncing(true);
@@ -1186,7 +1212,7 @@
                 if (token) refresh();
                 const onOnline = () => flush();
                 const onVisible = () => {
-                    if (document.visibilityState === 'visible') refresh();
+                    if (document.visibilityState === 'visible') { if (readToken()) refresh(); }
                     else { flushTimers(); flush(); }
                 };
                 window.addEventListener('online', onOnline);
@@ -1197,11 +1223,34 @@
                 };
             }, [token]);
 
+            const expireSession = useCallback(() => {
+                // Les textes en cours de frappe passent dans la file d'attente : rien n'est perdu,
+                // ils partiront après la reconnexion.
+                Object.values(timers.current).forEach(x => { clearTimeout(x.t); outbox.current.push(x.op); });
+                timers.current = {};
+                persistOutbox();
+                lsDel(TOKEN_KEY); lsDel(CACHE_KEY);
+                tokenRef.current = '';
+                setData(EMPTY_DATA); setCurrentId(null); setView('list'); setShowModal(false);
+                setAuthError("Session terminée. Entrez le code pour continuer.");
+                setToken('');
+            }, []);
+
+            // Vérifie l'heure chaque 30 s et au retour dans l'appli
+            useEffect(() => {
+                if (!token) return;
+                const check = () => { if (!readToken()) expireSession(); };
+                const iv = setInterval(check, 30000);
+                const onVis = () => { if (document.visibilityState === 'visible') check(); };
+                document.addEventListener('visibilitychange', onVis);
+                return () => { clearInterval(iv); document.removeEventListener('visibilitychange', onVis); };
+            }, [token, expireSession]);
+
             const login = async (code) => {
                 setAuthBusy(true); setAuthError('');
                 try {
                     const server = await apiGet(code);
-                    lsSet(TOKEN_KEY, code);
+                    saveToken(code);
                     tokenRef.current = code;
                     const local = outbox.current;
                     setData(local.reduce(applyOp, { properties: server.properties || [], inventory: server.inventory || EMPTY_DATA.inventory }));
