@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Équipe BG - Système Pro v4.0</title>
+    <title>Équipe BG - Système Pro v4.1</title>
     
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" href="icon-192.png">
@@ -582,6 +582,52 @@
             cursor: pointer;
             margin-top: 8px;
         }
+    
+        /* ===== CARNET BG + ADJOINT ===== */
+        .cb { display: flex; flex-direction: column; gap: 12px; }
+        .cb-composer { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+        .cb-draft { width: 100%; box-sizing: border-box; min-height: 120px; resize: vertical; font: inherit; font-size: 16px; line-height: 1.5; border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; background: var(--card-bg); color: var(--text-main); }
+        .cb-draft:focus, .cb-input:focus { outline: none; border-color: var(--bg-red); }
+        .cb-hint { font-size: 12px; color: var(--text-muted); }
+        .cb-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+        .cb-chip { border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 700; cursor: pointer; }
+        .cb-chip-on { background: var(--bg-dark); color: #fff; border-color: var(--bg-dark); }
+        .cb-chip-add { color: var(--text-muted); border-style: dashed; }
+        .cb-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .cb-grow { flex: 1; min-width: 0; }
+        .cb-input { flex: 1; min-width: 0; font: inherit; font-size: 15px; border: 1px solid var(--border-color); border-radius: 8px; padding: 9px 10px; background: var(--card-bg); color: var(--text-main); box-sizing: border-box; }
+        .cb-link { background: none; border: none; color: var(--text-muted); font-size: 13px; font-weight: 700; padding: 4px 6px; cursor: pointer; }
+        .cb-mic { flex: none; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); display: grid; place-items: center; cursor: pointer; }
+        .cb-mic-on { background: var(--bg-red); color: #fff; border-color: var(--bg-red); animation: cbPulse 1.2s ease-in-out infinite; }
+        @keyframes cbPulse { 50% { box-shadow: 0 0 0 6px rgba(217,35,46,0.2); } }
+        @media (prefers-reduced-motion: reduce) { .cb-mic-on { animation: none; } }
+        .cb-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+        .cb-tabs::-webkit-scrollbar { display: none; }
+        .cb-tabs .sort-tab { white-space: nowrap; }
+        .cb-prep { border: 1px solid var(--border-color); border-left: 4px solid var(--success); border-radius: 12px; background: var(--card-bg); }
+        .cb-prep-head { width: 100%; display: flex; justify-content: space-between; background: none; border: none; color: var(--text-main); font: inherit; font-size: 14px; font-weight: 800; padding: 12px 14px; cursor: pointer; text-align: left; }
+        .cb-prep-body { display: flex; flex-direction: column; gap: 8px; padding: 0 14px 14px; }
+        .cb-brief { background: var(--input-bg); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.5; }
+        .cb-md-h { font-weight: 800; color: var(--bg-red); margin: 10px 0 2px; font-size: 14px; }
+        .cb-md-h:first-child { margin-top: 0; }
+        .cb-md-ul { margin: 4px 0; padding-left: 20px; }
+        .cb-md-p { margin: 4px 0; }
+        .cb-day { font-size: 11px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border-color); padding: 6px 0 4px; }
+        .cb-note { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+        .cb-txt { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 15px; line-height: 1.5; }
+        .cb-meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--text-muted); }
+        .cb-tag { font-weight: 800; color: var(--success); background: rgba(16,185,129,0.12); border-radius: 999px; padding: 1px 9px; }
+        .cb-empty { border: 1px dashed var(--border-color); border-radius: 12px; padding: 22px; text-align: center; color: var(--text-muted); font-size: 14px; }
+        .cb-adj-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+        .cb-idees { display: flex; flex-direction: column; gap: 8px; }
+        .cb-idee { text-align: left; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; font: inherit; font-size: 14px; font-weight: 600; color: var(--text-main); cursor: pointer; }
+        .cb-chat { display: flex; flex-direction: column; gap: 10px; }
+        .cb-bulle { max-width: 88%; padding: 10px 14px; border-radius: 16px; font-size: 15px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; display: flex; flex-direction: column; align-items: flex-start; }
+        .cb-bulle .cb-md-ul, .cb-bulle .cb-md-p { white-space: normal; }
+        .cb-moi { align-self: flex-end; background: var(--bg-dark); color: #fff; border-bottom-right-radius: 4px; }
+        .cb-lui { align-self: flex-start; background: var(--input-bg); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; white-space: normal; }
+        .cb-ask { position: sticky; bottom: 0; display: flex; gap: 8px; align-items: flex-end; background: var(--card-bg); padding: 10px 0 4px; border-top: 1px solid var(--border-color); }
+        .cb-ask-input { min-height: 46px; flex: 1; }
     </style>
 </head>
 <body>
@@ -1080,6 +1126,463 @@
             );
         }
 
+        // ═════════════ CARNET BG + ADJOINT (réservés à Dan, code personnel DAN_TOKEN) ═════════════
+        const DAN_KEY = 'bg_dan_v1';
+        const CARNET_CACHE = 'bg_carnet_cache_v1';
+        const CARNET_DRAFT = 'bg_carnet_draft_v1';
+        const ADJ_KEY = 'bg_adjoint_v1';
+        const DAN_KEYS = [DAN_KEY, CARNET_CACHE, CARNET_DRAFT, ADJ_KEY];
+        const fmtJour = new Intl.DateTimeFormat('fr-CA', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        const fmtHeure = new Intl.DateTimeFormat('fr-CA', { hour: '2-digit', minute: '2-digit' });
+        const localDay = (d) => d.toLocaleDateString('en-CA');
+
+        async function danPost(fn, action, payload) {
+            const token = lsGet(DAN_KEY, '');
+            if (!token) throw apiError('auth', 'Code personnel requis');
+            const body = { ...payload, token };
+            if (GAS) return checkResult(await gasCall(fn, body));
+            return checkResult(await readJson(await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ ...body, action })
+            })));
+        }
+        const carnetCall = (op, payload) => danPost('carnetApi', 'carnet', { ...payload, op });
+        async function claudeCall(system, messages, max_tokens) {
+            // Fusionne deux messages de suite du même rôle (l'API veut une alternance)
+            const msgs = [];
+            messages.forEach(m => {
+                if (msgs.length && msgs[msgs.length - 1].role === m.role) msgs[msgs.length - 1].content += '\n\n' + m.content;
+                else msgs.push({ role: m.role, content: m.content });
+            });
+            return (await danPost('claudeApi', 'claude', { system, messages: msgs, max_tokens: max_tokens || 2000 })).text || '';
+        }
+        function danErrorLabel(e) {
+            const m = (e && e.message) || '';
+            if (m === 'cle_api_manquante') return 'clé Claude manquante dans le script';
+            if (/SpreadsheetApp|autoris|permission/i.test(m)) return "lance d'abord installerCarnet dans le script";
+            return serverErrorLabel(m);
+        }
+
+        // Dictée par le micro du navigateur (Chrome / Safari sur Mac). Sur iPhone, le micro du clavier reste le plus fiable.
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        function useDictee(onText, onFail) {
+            const [on, setOn] = useState(false);
+            const rec = useRef(null);
+            const cb = useRef({ onText, onFail });
+            cb.current = { onText, onFail };
+            const stop = () => { try { rec.current && rec.current.stop(); } catch (e) {} rec.current = null; setOn(false); };
+            const start = () => {
+                if (!SpeechRec) { cb.current.onFail(); return; }
+                try {
+                    const r = new SpeechRec();
+                    r.lang = 'fr-CA'; r.continuous = true; r.interimResults = false;
+                    r.onresult = (e) => {
+                        let t = '';
+                        for (let i = e.resultIndex; i < e.results.length; i++) if (e.results[i].isFinal) t += e.results[i][0].transcript;
+                        if (t.trim()) cb.current.onText(t.trim());
+                    };
+                    r.onerror = (e) => { if (e.error !== 'no-speech' && e.error !== 'aborted') cb.current.onFail(); };
+                    r.onend = () => { rec.current = null; setOn(false); };
+                    r.start(); rec.current = r; setOn(true);
+                } catch (e) { setOn(false); cb.current.onFail(); }
+            };
+            useEffect(() => () => { try { rec.current && rec.current.stop(); } catch (e) {} }, []);
+            return { on, toggle: () => (on ? stop() : start()), stop };
+        }
+        const appendDictee = (prev, t) => (prev.trim() ? prev.replace(/\s*$/, ' ') : '') + t;
+
+        function MicButton({ dictee }) {
+            return (
+                <button type="button" className={`cb-mic ${dictee.on ? 'cb-mic-on' : ''}`} onClick={dictee.toggle}
+                    title={dictee.on ? 'Arrêter la dictée' : 'Dicter'} aria-label={dictee.on ? 'Arrêter la dictée' : 'Dicter'}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+                </button>
+            );
+        }
+
+        // Petit rendu Markdown (titres, puces, gras) pour les réponses de Claude
+        function MiniMd({ text }) {
+            const inline = (s, k) => s.split(/(\*\*[^*]+\*\*)/).map((p, i) =>
+                /^\*\*[^*]+\*\*$/.test(p) ? <strong key={k + '-' + i}>{p.slice(2, -2)}</strong> : p);
+            const out = []; let ul = null;
+            (text || '').split('\n').forEach((raw, i) => {
+                const l = raw.trim();
+                if (!l) { ul = null; return; }
+                if (/^#{1,4}\s/.test(l)) { ul = null; out.push(<div key={i} className="cb-md-h">{inline(l.replace(/^#+\s/, ''), i)}</div>); return; }
+                if (/^[-*•]\s/.test(l)) {
+                    if (!ul) { ul = []; out.push(<ul key={i} className="cb-md-ul">{ul}</ul>); }
+                    ul.push(<li key={i}>{inline(l.replace(/^[-*•]\s/, ''), i)}</li>); return;
+                }
+                ul = null; out.push(<p key={i} className="cb-md-p">{inline(l, i)}</p>);
+            });
+            return <>{out}</>;
+        }
+
+        function DanLock({ onDone, titre }) {
+            const [code, setCode] = useState('');
+            const [busy, setBusy] = useState(false);
+            const [err, setErr] = useState('');
+            const submit = async () => {
+                if (!code.trim() || busy) return;
+                setBusy(true); setErr('');
+                lsSet(DAN_KEY, code.trim());
+                try {
+                    const r = await carnetCall('list', {});
+                    lsSet(CARNET_CACHE, { projets: r.projets || [], notes: r.notes || [] });
+                    onDone();
+                } catch (e) {
+                    lsDel(DAN_KEY);
+                    setErr(isAuthError(e) ? 'Code personnel invalide.' : 'Connexion impossible : ' + danErrorLabel(e));
+                }
+                setBusy(false);
+            };
+            return (
+                <div style={{padding:'28px 8px', textAlign:'center'}}>
+                    <div style={{fontSize:36, marginBottom:10}}>🔒</div>
+                    <div style={{fontSize:18, fontWeight:800, marginBottom:6}}>{titre} — réservé à Dan</div>
+                    <div style={{fontSize:13, color:'var(--text-muted)', marginBottom:18}}>Entre ton code personnel. Il reste sur ce téléphone jusqu'au verrouillage.</div>
+                    <input className="modal-input" type="password" autoComplete="off" placeholder="Code personnel"
+                        value={code} onChange={e => setCode(e.target.value)} onKeyDown={e => e.key === 'Enter' && submit()} />
+                    {err && <div style={{color:'var(--bg-red)', fontSize:13, fontWeight:700, marginBottom:12}}>{err}</div>}
+                    <button className="btn-main" onClick={submit} disabled={busy} style={{opacity: busy ? 0.6 : 1}}>{busy ? 'Vérification…' : 'Ouvrir'}</button>
+                </div>
+            );
+        }
+
+        function Carnet({ showToast, onLocked }) {
+            const cache = lsGet(CARNET_CACHE, { projets: [], notes: [] });
+            const [projets, setProjets] = useState(cache.projets || []);
+            const [notes, setNotes] = useState(cache.notes || []);
+            const [loading, setLoading] = useState(false);
+            const [draft, setDraft] = useState(() => lsGet(CARNET_DRAFT, ''));
+            const [pick, setPick] = useState('');
+            const [vue, setVue] = useState('all');
+            const [q, setQ] = useState('');
+            const [busy, setBusy] = useState('');
+            const [editing, setEditing] = useState(null);
+            const [confirmDel, setConfirmDel] = useState(null);
+            const [addingProj, setAddingProj] = useState(false);
+            const [newProj, setNewProj] = useState('');
+            const [showPrep, setShowPrep] = useState(false);
+            const [period, setPeriod] = useState('30');
+            const [focus, setFocus] = useState('');
+            const [brief, setBrief] = useState('');
+
+            useEffect(() => { lsSet(CARNET_DRAFT, draft); }, [draft]);
+            const apply = (r) => {
+                setProjets(r.projets || []); setNotes(r.notes || []);
+                lsSet(CARNET_CACHE, { projets: r.projets || [], notes: r.notes || [] });
+            };
+            const run = async (op, payload) => {
+                try { apply(await carnetCall(op, payload)); return true; }
+                catch (e) {
+                    if (isAuthError(e)) { lsDel(DAN_KEY); onLocked(); return false; }
+                    showToast('⚠ ' + danErrorLabel(e)); return false;
+                }
+            };
+            useEffect(() => { setLoading(true); run('list', {}).finally(() => setLoading(false)); }, []);
+
+            const dictee = useDictee(t => setDraft(d => appendDictee(d, t)),
+                () => showToast('🎙 Micro indisponible ici : touche le micro du clavier'));
+            const projName = (id) => { const p = projets.find(x => x.id === id); return p ? p.nom : 'Sans projet'; };
+
+            const save = async () => {
+                const texte = draft.trim();
+                if (!texte) { showToast('Écris ou dicte d’abord une note'); return; }
+                dictee.stop(); setBusy('save');
+                const now = new Date();
+                const note = { id: newId(), cree: now.toISOString(), jour: localDay(now), projet: pick, texte };
+                setNotes(n => [note, ...n]);
+                if (await run('addNote', { note })) { setDraft(''); showToast('✓ Note enregistrée' + (pick ? ' — ' + projName(pick) : '')); }
+                else setNotes(n => n.filter(x => x.id !== note.id));
+                setBusy('');
+            };
+            const clean = async () => {
+                if (!draft.trim()) return;
+                dictee.stop(); setBusy('clean');
+                try {
+                    const t = await claudeCall("Tu reçois une note dictée à voix haute par un courtier immobilier québécois (Équipe BG). Corrige la ponctuation, les majuscules, les fautes et les mots mal reconnus par la dictée. Garde exactement son sens, son vocabulaire et le français québécois. N'ajoute rien, ne résume pas. Réponds seulement avec le texte corrigé.",
+                        [{ role: 'user', content: draft }], 2000);
+                    if (t.trim()) { setDraft(t.trim()); showToast('✓ Note mise au propre : vérifie et enregistre'); }
+                } catch (e) {
+                    if (isAuthError(e)) { lsDel(DAN_KEY); onLocked(); return; }
+                    showToast('⚠ ' + danErrorLabel(e));
+                }
+                setBusy('');
+            };
+            const addProjet = async () => {
+                const nom = newProj.trim(); if (!nom) return;
+                const id = newId();
+                if (await run('addProjet', { id, nom })) { setNewProj(''); setAddingProj(false); setPick(id); }
+            };
+            const saveEdit = async () => {
+                if (!editing.texte.trim()) return;
+                if (await run('editNote', { id: editing.id, texte: editing.texte.trim(), projet: editing.projet })) setEditing(null);
+            };
+            const prep = async () => {
+                const since = period === 'all' ? 0 : Date.now() - Number(period) * 864e5;
+                const sel = notes.filter(n => (vue === 'all' || n.projet === vue) && new Date(n.cree).getTime() >= since).slice().reverse();
+                if (!sel.length) { setBrief('Aucune note sur cette période pour ce projet.'); return; }
+                setBusy('prep'); setBrief('');
+                const scope = vue === 'all' ? 'tous ses projets' : 'le projet « ' + projName(vue) + ' »';
+                const data = sel.map(n => '- [' + n.jour + (vue === 'all' ? ' | ' + projName(n.projet) : '') + '] ' + n.texte).join('\n');
+                const prompt = 'Voici les notes personnelles de Dan sur ' + scope + ', en ordre chronologique.' +
+                    (focus.trim() ? ' Le meeting porte sur : ' + focus.trim() + '. Concentre-toi sur ce qui s\'y rapporte.' : '') +
+                    '\n\nRédige avec exactement ces sections en titres « ### » : Où on en est (3-5 phrases) ; Décisions prises ; À faire / suivis (qui, quoi, quand si connu) ; Questions à poser au meeting ; Points à surveiller. Utilise des puces « - ». N\'invente rien qui n\'est pas dans les notes ; si une section est vide, écris « Rien dans les notes. »\n\nNotes :\n' + data;
+                try {
+                    setBrief(await claudeCall('Tu prépares Dan Gauthier, courtier immobilier et chef de l\'Équipe BG (Royal LePage Urbain, Chambly), pour un meeting. Français québécois, court et concret.',
+                        [{ role: 'user', content: prompt }], 2500));
+                } catch (e) {
+                    if (isAuthError(e)) { lsDel(DAN_KEY); onLocked(); return; }
+                    setBrief('⚠ Résumé impossible : ' + danErrorLabel(e));
+                }
+                setBusy('');
+            };
+            const copyBrief = async () => {
+                try { await navigator.clipboard.writeText(brief); showToast('✓ Résumé copié'); }
+                catch (e) { showToast('Copie impossible : sélectionne le texte'); }
+            };
+
+            const ql = q.trim().toLowerCase();
+            const shown = notes.filter(n => (vue === 'all' || n.projet === vue) && (!ql || (n.texte || '').toLowerCase().includes(ql)));
+            const count = (id) => notes.filter(n => id === 'all' || n.projet === id).length;
+            let lastDay = '';
+
+            return (
+                <div className="cb">
+                    <div className="cb-composer">
+                        <textarea className="cb-draft" value={draft} onChange={e => setDraft(e.target.value)}
+                            placeholder="Dicte ou écris ta note…" aria-label="Nouvelle note" />
+                        <div className="cb-hint">Sur iPhone : touche le micro du clavier. Sur Mac : appuie deux fois sur Fn, ou utilise le bouton micro.</div>
+                        <div className="cb-chips">
+                            {projets.map(p => (
+                                <button key={p.id} className={`cb-chip ${pick === p.id ? 'cb-chip-on' : ''}`} onClick={() => setPick(pick === p.id ? '' : p.id)}>{p.nom}</button>
+                            ))}
+                            {!addingProj && <button className="cb-chip cb-chip-add" onClick={() => setAddingProj(true)}>+ Projet</button>}
+                        </div>
+                        {addingProj && (
+                            <div className="cb-row">
+                                <input className="cb-input" autoFocus placeholder="Nom du nouveau projet" value={newProj}
+                                    onChange={e => setNewProj(e.target.value)} onKeyDown={e => e.key === 'Enter' && addProjet()} />
+                                <button className="btn-secondary" onClick={addProjet}>Ajouter</button>
+                                <button className="cb-link" onClick={() => { setAddingProj(false); setNewProj(''); }}>Annuler</button>
+                            </div>
+                        )}
+                        <div className="cb-row">
+                            <MicButton dictee={dictee} />
+                            <button className="btn-secondary cb-grow" onClick={clean} disabled={!!busy || !draft.trim()}>{busy === 'clean' ? 'Correction…' : '✨ Mettre au propre'}</button>
+                            <button className="btn-main cb-grow" style={{marginBottom:0}} onClick={save} disabled={!!busy}>{busy === 'save' ? 'Envoi…' : 'Enregistrer'}</button>
+                        </div>
+                    </div>
+
+                    <div className="cb-tabs">
+                        <button className={`sort-tab ${vue === 'all' ? 'sort-tab-active' : ''}`} onClick={() => { setVue('all'); setBrief(''); }}>Journal · {count('all')}</button>
+                        {projets.map(p => (
+                            <button key={p.id} className={`sort-tab ${vue === p.id ? 'sort-tab-active' : ''}`} onClick={() => { setVue(p.id); setPick(p.id); setBrief(''); }}>{p.nom} · {count(p.id)}</button>
+                        ))}
+                    </div>
+
+                    <div className="cb-prep">
+                        <button className="cb-prep-head" onClick={() => setShowPrep(!showPrep)}>
+                            <span>📋 Préparer un meeting{vue !== 'all' ? ' — ' + projName(vue) : ''}</span><span>{showPrep ? '▾' : '▸'}</span>
+                        </button>
+                        {showPrep && (
+                            <div className="cb-prep-body">
+                                <div className="cb-row">
+                                    <select className="cb-input" value={period} onChange={e => setPeriod(e.target.value)} aria-label="Période">
+                                        <option value="7">7 derniers jours</option>
+                                        <option value="30">30 derniers jours</option>
+                                        <option value="90">3 derniers mois</option>
+                                        <option value="all">Toutes les notes</option>
+                                    </select>
+                                </div>
+                                <input className="cb-input" placeholder="Sujet du meeting (optionnel)" value={focus} onChange={e => setFocus(e.target.value)} />
+                                <button className="btn-main" style={{marginBottom:0, background:'var(--success)'}} onClick={prep} disabled={!!busy}>{busy === 'prep' ? 'Claude relit tes notes…' : 'Préparer'}</button>
+                                {brief && <div className="cb-brief"><MiniMd text={brief} /></div>}
+                                {brief && !brief.startsWith('⚠') && !brief.startsWith('Aucune') && (
+                                    <div className="cb-row"><button className="btn-secondary" onClick={copyBrief}>Copier</button><button className="cb-link" onClick={() => setBrief('')}>Fermer</button></div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    <input className="search-input" style={{width:'100%', boxSizing:'border-box'}} type="search" placeholder="🔍 Chercher dans les notes" value={q} onChange={e => setQ(e.target.value)} />
+
+                    {loading && !notes.length && <div className="cb-empty">Chargement du carnet…</div>}
+                    {!loading && !shown.length && (
+                        <div className="cb-empty">{ql ? 'Aucune note ne contient « ' + q.trim() + ' ».' : 'Aucune note ici pour l’instant. Dicte ta première note en haut, choisis le projet et touche Enregistrer.'}</div>
+                    )}
+                    {shown.map(n => {
+                        const d = new Date(n.cree);
+                        const jour = isNaN(d) ? (n.jour || '') : fmtJour.format(d);
+                        const head = jour !== lastDay ? <div className="cb-day">{jour}</div> : null;
+                        lastDay = jour;
+                        return (
+                            <React.Fragment key={n.id}>
+                                {head}
+                                <div className="cb-note">
+                                    {editing && editing.id === n.id ? (
+                                        <>
+                                            <textarea className="cb-draft" style={{minHeight:90}} value={editing.texte} onChange={e => setEditing({ ...editing, texte: e.target.value })} />
+                                            <div className="cb-row">
+                                                <select className="cb-input" value={editing.projet} onChange={e => setEditing({ ...editing, projet: e.target.value })} aria-label="Projet">
+                                                    <option value="">Sans projet</option>
+                                                    {projets.map(p => <option key={p.id} value={p.id}>{p.nom}</option>)}
+                                                </select>
+                                                <button className="cb-link" onClick={() => setEditing(null)}>Annuler</button>
+                                                <button className="btn-secondary" onClick={saveEdit}>Enregistrer</button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="cb-txt">{n.texte}</div>
+                                            <div className="cb-meta">
+                                                <span>{isNaN(d) ? '' : fmtHeure.format(d)}</span>
+                                                {vue === 'all' && <span className="cb-tag">{projName(n.projet)}</span>}
+                                                <span style={{flex:1}}></span>
+                                                {confirmDel === n.id ? (
+                                                    <>
+                                                        <span style={{color:'var(--bg-red)', fontWeight:700}}>Supprimer ?</span>
+                                                        <button className="cb-link" onClick={() => setConfirmDel(null)}>Non</button>
+                                                        <button className="cb-link" style={{color:'var(--bg-red)'}} onClick={async () => { setConfirmDel(null); await run('deleteNote', { id: n.id }); }}>Oui</button>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <button className="cb-link" onClick={() => setEditing({ id: n.id, texte: n.texte, projet: n.projet || '' })}>Modifier</button>
+                                                        <button className="cb-link" onClick={() => setConfirmDel(n.id)}>Supprimer</button>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            </React.Fragment>
+                        );
+                    })}
+                </div>
+            );
+        }
+
+        // Contexte donné à l'adjoint : notes du carnet + propriétés (jamais les codes de boîte ni d'alarme)
+        function adjointSystem(carnet, properties) {
+            const projName = (id) => { const p = (carnet.projets || []).find(x => x.id === id); return p ? p.nom : 'Sans projet'; };
+            let budget = 120000;
+            const lignes = [];
+            for (const n of (carnet.notes || [])) {
+                const l = '- [' + n.jour + ' | ' + projName(n.projet) + '] ' + n.texte;
+                if (budget - l.length < 0) break;
+                budget -= l.length; lignes.push(l);
+            }
+            const props = (properties || []).map(p => {
+                const t = tasksOf(p);
+                const faites = t.filter(x => x.done).map(x => x.label);
+                const reste = t.filter(x => !x.done).map(x => x.label);
+                return '- ' + (p.name || '(sans adresse)') +
+                    ' | tâches faites : ' + (faites.join(', ') || 'aucune') +
+                    ' | reste : ' + (reste.join(', ') || 'rien') +
+                    (p.notes ? ' | notes : ' + String(p.notes).slice(0, 500).replace(/\n/g, ' ') : '');
+            });
+            return "Tu es l'adjoint virtuel de Dan Gauthier, courtier immobilier et chef de l'Équipe BG (Royal LePage Urbain, Chambly, Rive-Sud). " +
+                "Réponds en français québécois, court et concret, avec des puces quand c'est utile. " +
+                "Tu connais seulement son Carnet BG (notes personnelles) et les propriétés à vendre de l'appli, ci-dessous. " +
+                "Tu n'as pas accès à ses courriels, son Drive, son agenda ni SimplySavant : si on te le demande, dis-lui de passer par Jarvis dans Claude. " +
+                "N'invente rien ; si l'information n'est pas là, dis-le. Aujourd'hui : " + fmtJour.format(new Date()) + ".\n\n" +
+                "## Notes du Carnet BG (plus récentes d'abord)\n" + (lignes.join('\n') || '(aucune note)') +
+                "\n\n## Propriétés à vendre dans l'appli\n" + (props.join('\n') || '(aucune)');
+        }
+
+        const ADJ_IDEES = [
+            'Résume ma semaine à partir de mes notes',
+            'Qu’est-ce qui reste à faire sur mes propriétés à vendre ?',
+            'Quelles sont mes priorités pour demain ?',
+            'Où en est le projet Jarvis ?'
+        ];
+
+        function Adjoint({ properties, showToast, onLocked }) {
+            const [msgs, setMsgs] = useState(() => lsGet(ADJ_KEY, []));
+            const [input, setInput] = useState('');
+            const [busy, setBusy] = useState(false);
+            const endRef = useRef(null);
+            useEffect(() => { lsSet(ADJ_KEY, msgs.slice(-40)); }, [msgs]);
+            useEffect(() => { endRef.current && endRef.current.scrollIntoView({ block: 'end', behavior: 'smooth' }); }, [msgs.length, busy]);
+            const dictee = useDictee(t => setInput(d => appendDictee(d, t)),
+                () => showToast('🎙 Micro indisponible ici : touche le micro du clavier'));
+
+            const send = async (texte) => {
+                const t = (texte != null ? texte : input).trim();
+                if (!t || busy) return;
+                dictee.stop();
+                const next = [...msgs, { role: 'user', content: t }];
+                setMsgs(next); setInput(''); setBusy(true);
+                try {
+                    let carnet = lsGet(CARNET_CACHE, { projets: [], notes: [] });
+                    try {
+                        const r = await carnetCall('list', {});
+                        carnet = { projets: r.projets || [], notes: r.notes || [] };
+                        lsSet(CARNET_CACHE, carnet);
+                    } catch (e) { if (isAuthError(e)) throw e; }
+                    const hist = next.filter(m => !m.err).slice(-20);
+                    const rep = await claudeCall(adjointSystem(carnet, properties), hist, 2000);
+                    setMsgs(m => [...m, { role: 'assistant', content: rep || '(réponse vide)' }]);
+                } catch (e) {
+                    if (isAuthError(e)) { lsDel(DAN_KEY); onLocked(); return; }
+                    setMsgs(m => [...m, { role: 'assistant', content: '⚠ Je n’ai pas pu répondre : ' + danErrorLabel(e), err: true }]);
+                }
+                setBusy(false);
+            };
+            const copy = async (t) => {
+                try { await navigator.clipboard.writeText(t); showToast('✓ Copié'); } catch (e) { showToast('Copie impossible'); }
+            };
+
+            return (
+                <div className="cb">
+                    <div className="cb-adj-head">
+                        <div>
+                            <div style={{fontWeight:800, fontSize:16}}>Adjoint virtuel</div>
+                            <div style={{fontSize:12, color:'var(--text-muted)'}}>Connaît ton carnet et tes propriétés à vendre. Pour courriels, Drive ou SimplySavant : Jarvis.</div>
+                        </div>
+                        {msgs.length > 0 && <button className="cb-link" onClick={() => setMsgs([])}>Nouvelle conversation</button>}
+                    </div>
+
+                    {!msgs.length && (
+                        <div className="cb-idees">
+                            {ADJ_IDEES.map(s => <button key={s} className="cb-idee" onClick={() => send(s)}>{s}</button>)}
+                        </div>
+                    )}
+
+                    <div className="cb-chat">
+                        {msgs.map((m, i) => (
+                            <div key={i} className={m.role === 'user' ? 'cb-bulle cb-moi' : 'cb-bulle cb-lui'}>
+                                {m.role === 'user' ? m.content : <MiniMd text={m.content} />}
+                                {m.role === 'assistant' && !m.err && <button className="cb-link" style={{marginTop:4}} onClick={() => copy(m.content)}>Copier</button>}
+                            </div>
+                        ))}
+                        {busy && <div className="cb-bulle cb-lui" style={{color:'var(--text-muted)'}}>L’adjoint réfléchit…</div>}
+                        <div ref={endRef}></div>
+                    </div>
+
+                    <div className="cb-ask">
+                        <MicButton dictee={dictee} />
+                        <textarea className="cb-draft cb-ask-input" rows={2} value={input} onChange={e => setInput(e.target.value)}
+                            onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); send(); } }}
+                            placeholder="Demande à ton adjoint…" aria-label="Message à l'adjoint" />
+                        <button className="btn-main" style={{width:'auto', flex:'none', height:46, marginBottom:0, padding:'0 16px', opacity: (busy || !input.trim()) ? 0.5 : 1}} onClick={() => send()} disabled={busy || !input.trim()}>Envoyer</button>
+                    </div>
+                </div>
+            );
+        }
+
+        function DanZone({ quoi, properties, showToast }) {
+            const [unlocked, setUnlocked] = useState(() => !!lsGet(DAN_KEY, ''));
+            const titre = quoi === 'carnet' ? 'Carnet BG' : 'Adjoint virtuel';
+            if (!unlocked) return <DanLock titre={titre} onDone={() => setUnlocked(true)} />;
+            const onLocked = () => { setUnlocked(false); showToast('🔒 Code personnel à entrer de nouveau'); };
+            return quoi === 'carnet'
+                ? <Carnet showToast={showToast} onLocked={onLocked} />
+                : <Adjoint properties={properties} showToast={showToast} onLocked={onLocked} />;
+        }
+
         function App() {
             const [token, setToken] = useState(() => readToken());
             const [authError, setAuthError] = useState('');
@@ -1271,7 +1774,7 @@
                 Object.values(timers.current).forEach(x => clearTimeout(x.t));
                 timers.current = {};
                 outbox.current = [];
-                [TOKEN_KEY, CACHE_KEY, OUTBOX_KEY].forEach(lsDel);
+                [TOKEN_KEY, CACHE_KEY, OUTBOX_KEY, ...DAN_KEYS].forEach(lsDel);
                 tokenRef.current = '';
                 setData(EMPTY_DATA); setPending(0); setCurrentId(null); setView('list');
                 setToken('');
@@ -1610,12 +2113,15 @@
                         )}
                         {/* ===== EVALUATION VIEW ===== */}
                         {view === 'eval' && <EvalComparative />}
+                        {/* ===== CARNET BG + ADJOINT ===== */}
+                        {view === 'carnet' && <DanZone quoi="carnet" properties={properties} showToast={showToast} />}
+                        {view === 'adjoint' && <DanZone quoi="adjoint" properties={properties} showToast={showToast} />}
 
                     </main>
 
                     {/* Bottom Nav */}
                     <nav className="nav-bar">
-                        <button className={`nav-item ${view !== 'inventory' && view !== 'eval' ? 'nav-active' : ''}`} onClick={() => { setView('list'); setCurrentId(null); }}>
+                        <button className={`nav-item ${!['inventory','eval','carnet','adjoint'].includes(view) ? 'nav-active' : ''}`} onClick={() => { setView('list'); setCurrentId(null); }}>
                             <span className="nav-item-icon">🏠</span>PROPRIÉTÉS
                         </button>
                         <button className={`nav-item ${view === 'inventory' ? 'nav-active' : ''}`} onClick={() => setView('inventory')}>
@@ -1623,6 +2129,12 @@
                         </button>
                         <button className={`nav-item ${view === 'eval' ? 'nav-active' : ''}`} onClick={() => setView('eval')}>
                             <span className="nav-item-icon">📊</span>ÉVALUATION
+                        </button>
+                        <button className={`nav-item ${view === 'carnet' ? 'nav-active' : ''}`} onClick={() => setView('carnet')}>
+                            <span className="nav-item-icon">📝</span>CARNET
+                        </button>
+                        <button className={`nav-item ${view === 'adjoint' ? 'nav-active' : ''}`} onClick={() => setView('adjoint')}>
+                            <span className="nav-item-icon">🤖</span>ADJOINT
                         </button>
                     </nav>
 
