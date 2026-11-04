@@ -186,7 +186,7 @@ textarea.sales{min-height:220px;font-size:16px;line-height:1.55}
 .sheet.wait .ico{background:#B07A00}
 .sheet h3{margin:0;text-align:center;font-family:var(--f-display);font-weight:500;font-size:24px;line-height:1.2}
 .sheet .body{display:flex;flex-direction:column;gap:8px;font-size:15.5px}
-.sheet .body p{margin:0}
+.sheet .body p{margin:0;overflow-wrap:anywhere}
 .sheet .acts2{display:flex;flex-direction:column;gap:8px;margin-top:6px}
 .sheet .acts2 .primary{flex:none;width:100%;display:grid;place-items:center;text-decoration:none}
 .sheet .acts2 .ghost{width:100%;min-height:48px}
@@ -282,11 +282,11 @@ textarea.sales{min-height:220px;font-size:16px;line-height:1.55}
       const courtier = localStorage.getItem(COURTIER_KEY) || '';
       if (!courtier) throw { code: 'courtier_requis' };
       const a = (args.attachments || [])[0];
-      await call({
-        action: 'envoyerAdmin', courtier: courtier, to: args.to, subject: args.subject, body: args.body, sendId: args.sendId,
+      const r = await call({
+        action: 'envoyerAdmin', courtier: courtier, to: args.to, subject: args.subject, body: args.body, sendId: args.sendId, nom: args.nom,
         pdf: a ? { content: a.content, filename: a.filename } : undefined
       });
-      return { viewUrl: null };
+      return { viewUrl: null, fiche: r.fiche || null };
     }
   };
 })();
@@ -345,7 +345,7 @@ textarea.sales{min-height:220px;font-size:16px;line-height:1.55}
     callTool: async (server, tool, args) => {
       if (server !== 'Gmail' || tool !== 'create_draft') throw { code: 'bad_request', message: server + '.' + tool };
       const r = await A.createGmailDraft(args);
-      return { payload: { viewUrl: r && r.viewUrl } };
+      return { payload: Object.assign({}, r, { viewUrl: r && r.viewUrl }) };
     }
   } : null;
 
@@ -812,7 +812,7 @@ document.addEventListener('click',async e=>{
   if(!cur.sendId){ cur.sendId=newSendId(); persist(); }
   b.disabled=true; b.textContent='Envoi…';
   try{
-    await mcp.callTool('Gmail','create_draft',{to:RECIP,subject:m.subject,body:m.body,includeSignature:true,sendId:cur.sendId});
+    await mcp.callTool('Gmail','create_draft',{to:RECIP,subject:m.subject,body:m.body,includeSignature:true,sendId:cur.sendId,nom:cur.nom});
     delete cur.sendId; delete cur.pendingGmail; cur.gmailAt=Date.now(); persist();
     setStatus(`<div class="okline"><p><b>Envoyé à l’admin</b>, sans pièce jointe. Touche maintenant le bouton PDF et envoie le formulaire à Marie-Ange toi-même.</p></div>`);
   }catch(err){
@@ -954,12 +954,14 @@ async function createGmailDraft(auto){
   if(content.length > 1000000){ setStatus('Ce formulaire est trop volumineux pour être joint automatiquement (trop de logements remplis). Touche « Envoyer sans PDF » ci-dessous, puis envoie le PDF toi-même avec le bouton PDF.<br><button class="mailbtn" id="draftNoAtt" style="background:transparent;cursor:pointer;width:100%;margin-top:10px">Envoyer sans PDF</button>',true); showSheet('err','Le courriel n’est pas parti','<p>Ce formulaire est trop volumineux pour être joint automatiquement. Les options sont expliquées sous le formulaire.</p>'); busy(false,b,'Envoyer à l’admin'); gmailRunning=false; return; }
   try{
     const res = await mcp.callTool('Gmail','create_draft',{
-      to: RECIP, subject: m.subject, body: m.body, includeSignature: true, sendId: cur.sendId,
+      to: RECIP, subject: m.subject, body: m.body, includeSignature: true, sendId: cur.sendId, nom: cur.nom,
       attachments: [{content, filename: pdf.filename, mimeType: 'application/pdf'}]
     });
     const url = res && res.payload && res.payload.viewUrl;
+    const fiche = res && res.payload && res.payload.fiche;
+    const ficheTxt = fiche==='creee' ? 'La propriété est ajoutée à l’onglet Propriétés, avec sa checklist terrain.' : fiche==='maj' ? 'La propriété existait déjà dans l’onglet Propriétés : sa checklist est mise à jour.' : '';
     delete cur.pendingGmail; delete cur.sendId; cur.gmailAt=Date.now(); persist(); gmailDone=true;
-    showSheet('ok','Envoyé à l’admin',`<p>Envoyé à <b>${esc(joinNames(people().map(p=>p[0])))}</b>, copie à toi.</p><p>Pièce jointe : ${esc(pdf.filename)}</p><p>${(cur.sales||'').trim()&&(cur.salesEn||'').trim()?'Textes d’annonce français et anglais inclus.':(cur.sales||cur.salesEn||'').trim()?'Texte d’annonce inclus.':'Sans texte d’annonce.'}</p><p class="note">Les réponses arrivent dans ta boîte courriel.</p>`);
+    showSheet('ok','Envoyé à l’admin',`<p>Envoyé à <b>${esc(joinNames(people().map(p=>p[0])))}</b>, copie à toi.</p><p>Pièce jointe : ${esc(pdf.filename)}</p><p>${(cur.sales||'').trim()&&(cur.salesEn||'').trim()?'Textes d’annonce français et anglais inclus.':(cur.sales||cur.salesEn||'').trim()?'Texte d’annonce inclus.':'Sans texte d’annonce.'}</p>${ficheTxt?`<p>${ficheTxt}</p>`:''}<p class="note">Les réponses arrivent dans ta boîte courriel.</p>`);
     setStatus(`<div class="okline"><p><b>Envoyé à l’admin</b> (${esc(joinNames(people().map(p=>p[0])))}, copie à toi), avec ${esc(pdf.filename)} en pièce jointe (pages remplies seulement).${pdf.errs.length?` ${pdf.errs.length} champ(s) ignoré(s).`:''}</p>
       </div>`);
   }catch(err){

@@ -587,6 +587,49 @@
             );
         }
 
+        // Suppression d'une propriété : demande le code de suppression (vérifié par le serveur)
+        function DeletePropertyModal({ name, onConfirm, onCancel }) {
+            const [code, setCode] = useState('');
+            const [error, setError] = useState('');
+            const [busy, setBusy] = useState(false);
+            const inputRef = useRef();
+            useEffect(() => { setTimeout(() => inputRef.current?.focus(), 100); }, []);
+            const submit = async () => {
+                if (!code.trim() || busy) return;
+                setBusy(true); setError('');
+                const err = await onConfirm(code.trim());
+                if (err) { setError(err); setBusy(false); }
+            };
+            return (
+                <div className="modal-overlay" onClick={busy ? undefined : onCancel}>
+                    <div className="modal-sheet" onClick={e => e.stopPropagation()}>
+                        <div className="modal-handle"></div>
+                        <div className="modal-title">🗑️ Supprimer cette propriété ?</div>
+                        <div style={{fontSize:14, color:'var(--text-muted)', marginBottom:12, lineHeight:1.4}}>
+                            <strong style={{color:'var(--text-main)'}}>{name}</strong> sera retirée pour toute l'équipe. Entrez le code de suppression pour confirmer.
+                        </div>
+                        <input
+                            ref={inputRef}
+                            className="modal-input"
+                            type="password"
+                            autoComplete="off"
+                            placeholder="Code de suppression"
+                            value={code}
+                            onChange={e => { setCode(e.target.value); setError(''); }}
+                            onKeyDown={e => e.key === 'Enter' && submit()}
+                        />
+                        {error && <div style={{color:'var(--bg-red)', fontSize:13, fontWeight:700, margin:'-6px 0 12px'}}>{error}</div>}
+                        <div className="modal-actions">
+                            <button className="btn-cancel" onClick={onCancel} disabled={busy}>Annuler</button>
+                            <button className="btn-confirm" onClick={submit} disabled={!code.trim() || busy}>
+                                {busy ? 'Vérification…' : 'Supprimer'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
         // ─── SYNCHRONISATION v4 ───────────────────────────────────────────────
         // Chaque modification devient une petite « opération » (créer, modifier un champ,
         // cocher une tâche…). Elle est appliquée tout de suite à l'écran, mise en file
@@ -749,16 +792,17 @@
             const [view, setView] = useState('list');
             const [currentId, setCurrentId] = useState(null);
             const [syncing, setSyncing] = useState(false);
-            const [pending, setPending] = useState(() => lsGet(OUTBOX_KEY, []).filter(op => op && op.action !== 'inventory' && op.action !== 'feature').length);
+            const [pending, setPending] = useState(() => lsGet(OUTBOX_KEY, []).filter(op => op && op.action !== 'inventory' && op.action !== 'feature' && op.action !== 'delete').length);
             const [search, setSearch] = useState("");
             const [filter, setFilter] = useState('all');
             const [showModal, setShowModal] = useState(false);
-            const [saisieOpened, setSaisieOpened] = useState(false);   // l'iframe Saisie n'est chargée qu'au premier usage
+            const [saisieOpened, setSaisieOpened] = useState(false);
+            const [deleteTarget, setDeleteTarget] = useState(null);   // propriété à supprimer (demande du code)   // l'iframe Saisie n'est chargée qu'au premier usage
             const [toast, setToast] = useState({ msg: '', visible: false });
             const toastTimer = useRef(null);
 
             const tokenRef = useRef(token);
-            const outbox = useRef(lsGet(OUTBOX_KEY, []).filter(op => op && op.action !== 'inventory' && op.action !== 'feature'));
+            const outbox = useRef(lsGet(OUTBOX_KEY, []).filter(op => op && op.action !== 'inventory' && op.action !== 'feature' && op.action !== 'delete'));
             const timers = useRef({});          // modifications de texte en attente (délai de frappe)
             const flushing = useRef(false);
 
@@ -890,7 +934,7 @@
                 persistOutbox();
                 lsDel(TOKEN_KEY); lsDel(CACHE_KEY);
                 tokenRef.current = '';
-                setData(EMPTY_DATA); setCurrentId(null); setView('list'); setShowModal(false); setSaisieOpened(false);
+                setData(EMPTY_DATA); setCurrentId(null); setView('list'); setShowModal(false); setSaisieOpened(false); setDeleteTarget(null);
                 setAuthError("Session terminée. Entrez le code pour continuer.");
                 setToken('');
             }, []);
@@ -932,7 +976,7 @@
                 outbox.current = [];
                 [TOKEN_KEY, CACHE_KEY, OUTBOX_KEY, ...OLD_KEYS].forEach(lsDel);
                 tokenRef.current = '';
-                setData(EMPTY_DATA); setPending(0); setCurrentId(null); setView('list'); setSaisieOpened(false);
+                setData(EMPTY_DATA); setPending(0); setCurrentId(null); setView('list'); setSaisieOpened(false); setDeleteTarget(null);
                 setToken('');
             };
 
@@ -950,15 +994,34 @@
                 setView('dashboard');
             };
 
-            const deleteProperty = (id, e) => {
+            const deleteProperty = (p, e) => {
                 e.stopPropagation();
-                if (confirm("Supprimer définitivement ce dossier ?")) {
-                    Object.keys(timers.current).filter(k => k.startsWith(id + ':')).forEach(k => {
-                        clearTimeout(timers.current[k].t); delete timers.current[k];
-                    });
-                    dispatch({ action: 'delete', id });
-                    if (currentId === id) { setCurrentId(null); setView('list'); }
+                setDeleteTarget({ id: p.id, name: p.name });
+            };
+
+            // Envoyée directement au serveur (pas de file d'attente) : rien n'est retiré tant que le code n'est pas accepté.
+            // Renvoie un message d'erreur, ou '' si c'est fait.
+            const confirmDelete = async (code) => {
+                const id = deleteTarget && deleteTarget.id;
+                if (!id) return '';
+                if (navigator.onLine === false) return 'Pas de réseau : la suppression demande une connexion.';
+                try {
+                    await apiPost(tokenRef.current, { action: 'delete', id, code });
+                } catch (err) {
+                    if (isAuthError(err)) { setDeleteTarget(null); handleAuthLost(); return ''; }
+                    if (err.message === 'code_suppression') return 'Code de suppression incorrect.';
+                    if (err.message === 'suppression_non_configuree') return "La suppression n'est pas activée. Dan doit ajouter CODE_SUPPRESSION dans le serveur.";
+                    return isServerError(err) ? 'Erreur du serveur : ' + serverErrorLabel(err.message) : 'Connexion impossible. Réessayez.';
                 }
+                Object.keys(timers.current).filter(k => k.startsWith(id + ':')).forEach(k => {
+                    clearTimeout(timers.current[k].t); delete timers.current[k];
+                });
+                outbox.current = outbox.current.filter(op => op.id !== id); persistOutbox();
+                setData(d => applyOp(d, { action: 'delete', id }));
+                if (currentId === id) { setCurrentId(null); setView('list'); }
+                setDeleteTarget(null);
+                showToast('🗑️ Propriété supprimée');
+                return '';
             };
 
             const toggleTask = (p, t) => {
@@ -1078,7 +1141,7 @@
                                                             {p.simplySavantLink && <span style={{fontSize:11, color:'var(--fub-color)', fontWeight:700}}>SimplySavant ✓</span>}
                                                         </div>
                                                     </div>
-                                                    <button onClick={(e) => deleteProperty(p.id, e)} className="delete-icon">🗑️</button>
+                                                    <button onClick={(e) => deleteProperty(p, e)} className="delete-icon">🗑️</button>
                                                 </div>
                                                 <div className="progress-bar">
                                                     <div className={`progress-fill ${getProgressColor(donePct)}`} style={{width:`${donePct}%`}}></div>
@@ -1212,6 +1275,7 @@
                         </button>
                     </nav>
 
+                    {deleteTarget && <DeletePropertyModal name={deleteTarget.name} onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
                     {showModal && <AddPropertyModal onConfirm={createNewProperty} onCancel={() => setShowModal(false)} />}
 
                     <Toast msg={toast.msg} visible={toast.visible} />
