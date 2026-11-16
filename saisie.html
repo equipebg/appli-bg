@@ -23,7 +23,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 button,input,textarea{font:inherit;color:inherit}
-.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:22px 170px;display:flex;flex-direction:column;gap:20px}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:22px 28px;display:flex;flex-direction:column;gap:20px}
 
 /* Bandeau */
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--band);color:var(--band-ink);border-bottom:1px solid var(--band-line);color-scheme:light}
@@ -133,7 +133,9 @@ details.sec[open]>summary::after{transform:rotate(-135deg)}
 .note{font-size:14px;color:var(--muted);margin:0}
 
 /* Barre d'action */
-.bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+/* v5 : la section d'envoi suit le formulaire (elle n'est plus fixée en bas de l'écran) */
+.bar{position:static;background:var(--surface);border-top:1px solid var(--line);padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.bar .envoi-titre{font-family:var(--f-display);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:6px 0 2px}
 .bar .in{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:8px 10px;display:flex;flex-direction:column;gap:8px}
 .bar .row{display:flex;gap:8px;align-items:center}
 .bar .row.acts{justify-content:flex-end}
@@ -218,6 +220,7 @@ textarea.sales{min-height:220px;font-size:16px;line-height:1.55}
 <main class="wrap" id="editor" hidden></main>
 
 <div class="bar" id="bar" hidden><div class="in">
+  <div class="envoi-titre">Envoi</div>
   <div class="row"><label class="also" for="courtier">Envoyé par</label><select id="courtier" class="who"><option value="">Choisis ton nom…</option></select></div>
   <div class="row" id="ccRow"><span class="also">Ajouter</span><button class="chip" data-cc="patrick" aria-pressed="false">Patrick Benoit</button><button class="chip" data-cc="daniel" aria-pressed="false">Daniel Gauthier</button></div>
   <div class="row acts"><button class="secondary" id="gen" aria-label="Enregistrer le PDF">PDF</button>
